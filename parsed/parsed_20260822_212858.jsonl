@@ -1,0 +1,398 @@
+{"host_epoch_ms": 1787401741376, "frame_id": 8735, "msg_type": "0x0A0A", "data_len": 16, "presence_zones": [1, 0, 0, 0]}
+{"host_epoch_ms": 1787401741376, "frame_id": 8736, "msg_type": "0x0A04", "data_len": 4, "target_count": 0, "targets": []}
+{"host_epoch_ms": 1787401741436, "frame_id": 8737, "msg_type": "0x0A0A", "data_len": 16, "presence_zones": [1, 0, 0, 0]}
+{"host_epoch_ms": 1787401741436, "frame_id": 8738, "msg_type": "0x0A04", "data_len": 4, "target_count": 0, "targets": []}
+{"host_epoch_ms": 1787401741470, "frame_id": 8739, "msg_type": "0x0A0A", "data_len": 16, "presence_zones": [1, 0, 0, 0]}
+{"host_epoch_ms": 1787401741470, "frame_id": 8740, "msg_type": "0x0A04", "data_len": 4, "target_count": 0, "targets": []}
+{"host_epoch_ms": 1787401741532, "frame_id": 8741, "msg_type": "0x0A0A", "data_len": 16, "presence_zones": [1, 0, 0, 0]}
+{"host_epoch_ms": 1787401741538, "frame_id": 8742, "msg_type": "0x0A04", "data_len": 4, "target_count": 0, "targets": []}
+{"host_epoch_ms": 1787401741567, "frame_id": 8743, "msg_type": "0x0A0A", "data_len": 16, "presence_zones": [1, 0, 0, 0]}
+{"host_epoch_ms": 1787401741567, "frame_id": 8744, "msg_type": "0x0A04", "data_len": 4, "target_count": 0, "targets": []}
+{"host_epoch_ms": 1787401741617, "frame_id": 8745, "msg_type": "0x0A0A", "data_len": 16, "presence_zones": [1, 0, 0, 0]}
+{"host_epoch_ms": 1787401741617, "frame_id": 8746, "msg_type": "0x0A04", "data_len": 4, "target_count": 0, "targets": []}
+{"host_epoch_ms": 1787401741673, "frame_id": 8747, "msg_type": "0x0A0A", "data_len": 16, "presence_zones": [1, 0, 0, 0]}
+{"host_epoch_ms": 1787401741673, "frame_id": 8748, "msg_type": "0x0A04", "data_len": 4, "target_count": 0, "targets": []}
+{"host_epoch_ms": 1787401741751, "frame_id": 8749, "msg_type": "0x0A0A", "data_len": 16, "presence_zones": [1, 0, 0, 0]}
+{"host_epoch_ms": 1787401741762, "frame_id": 8750, "msg_type": "0x0A04", "data_len": 4, "target_count": 0, "targets": []}
+{"host_epoch_ms": 1787401741762, "frame_id": 8751, "msg_type": "0x0A0A", "data_len": 16, "presence_zones": [1, 0, 0, 0]}
+{"host_epoch_ms": 1787401741796, "frame_id": 8752, "msg_type": "0x0A04", "data_len": 4, "target_count": 0, "targets": []}
+{"host_epoch_ms": 1787401741823, "frame_id": 8753, "msg_type": "0x0A0A", "data_len": 16, "presence_zones": [1, 0, 0, 0]}
+{"host_epoch_ms": 1787401741857, "frame_id": 8754, "msg_type": "0x0A04", "data_len": 4, "target_count": 0, "targets": []}
+{"host_epoch_ms": 1787401741885, "frame_id": 8755, "msg_type": "0x0A0A", "data_len": 16, "presence_zones": [1, 0, 0, 0]}
+{"host_epoch_ms": 1787401741885, "frame_id": 8756, "msg_type": "0x0A04", "data_len": 4, "target_count": 0, "targets": []}
+{"host_epoch_ms": 1787401741913, "frame_id": 8757, "msg_type": "0x0A0A", "data_len": 16, "presence_zones": [1, 0, 0, 0]}
+{"host_epoch_ms": 1787401741913, "frame_id": 8758, "msg_type": "0x0A04", "data_len": 4, "target_count": 0, "targets": []}
+{"host_epoch_ms": 1787401741975, "frame_id": 8759, "msg_type": "0x0A0A", "data_len": 16, "presence_zones": [1, 0, 0, 0]}
+{"host_epoch_ms": 1787401741975, "frame_id": 8760, "msg_type": "0x0A04", "data_len": 4, "target_count": 0, "targets": []}
+{"host_epoch_ms": 1787401742025, "frame_id": 8761, "msg_type": "0x0A0A", "data_len": 16, "presence_zones": [1, 0, 0, 0]}
+{"host_epoch_ms": 1787401742025, "frame_id": 8762, "msg_type": "0x0A04", "data_len": 4, "target_count": 0, "targets": []}
+{"host_epoch_ms": 1787401742064, "frame_id": 8763, "msg_type": "0x0A0A", "data_len": 16, "presence_zones": [1, 0, 0, 0]}
+{"host_epoch_ms": 1787401742064, "frame_id": 8764, "msg_type": "0x0A04", "data_len": 4, "target_count": 0, "targets": []}
+{"host_epoch_ms": 1787401742124, "frame_id": 8765, "msg_type": "0x0A0A", "data_len": 16, "presence_zones": [1, 0, 0, 0]}
+{"host_epoch_ms": 1787401742153, "frame_id": 8766, "msg_type": "0x0A04", "data_len": 4, "target_count": 0, "targets": []}
+{"host_epoch_ms": 1787401742230, "frame_id": 8767, "msg_type": "0x0A0A", "data_len": 16, "presence_zones": [1, 0, 0, 0]}
+{"host_epoch_ms": 1787401742258, "frame_id": 8768, "msg_type": "0x0A04", "data_len": 4, "target_count": 0, "targets": []}
+{"host_epoch_ms": 1787401742275, "frame_id": 8769, "msg_type": "0x0A0A", "data_len": 16, "presence_zones": [1, 0, 0, 0]}
+{"host_epoch_ms": 1787401742275, "frame_id": 8770, "msg_type": "0x0A04", "data_len": 4, "target_count": 0, "targets": []}
+{"host_epoch_ms": 1787401742281, "frame_id": 8771, "msg_type": "0x0A0A", "data_len": 16, "presence_zones": [1, 0, 0, 0]}
+{"host_epoch_ms": 1787401742281, "frame_id": 8772, "msg_type": "0x0A04", "data_len": 4, "target_count": 0, "targets": []}
+{"host_epoch_ms": 1787401742314, "frame_id": 8773, "msg_type": "0x0A0A", "data_len": 16, "presence_zones": [1, 0, 0, 0]}
+{"host_epoch_ms": 1787401742314, "frame_id": 8774, "msg_type": "0x0A04", "data_len": 4, "target_count": 0, "targets": []}
+{"host_epoch_ms": 1787401742370, "frame_id": 8775, "msg_type": "0x0A0A", "data_len": 16, "presence_zones": [1, 0, 0, 0]}
+{"host_epoch_ms": 1787401742371, "frame_id": 8776, "msg_type": "0x0A04", "data_len": 4, "target_count": 0, "targets": []}
+{"host_epoch_ms": 1787401742426, "frame_id": 8777, "msg_type": "0x0A0A", "data_len": 16, "presence_zones": [1, 0, 0, 0]}
+{"host_epoch_ms": 1787401742426, "frame_id": 8778, "msg_type": "0x0A04", "data_len": 4, "target_count": 0, "targets": []}
+{"host_epoch_ms": 1787401742498, "frame_id": 8779, "msg_type": "0x0A0A", "data_len": 16, "presence_zones": [1, 0, 0, 0]}
+{"host_epoch_ms": 1787401742498, "frame_id": 8780, "msg_type": "0x0A04", "data_len": 4, "target_count": 0, "targets": []}
+{"host_epoch_ms": 1787401742526, "frame_id": 8781, "msg_type": "0x0A0A", "data_len": 16, "presence_zones": [1, 0, 0, 0]}
+{"host_epoch_ms": 1787401742526, "frame_id": 8782, "msg_type": "0x0A04", "data_len": 4, "target_count": 0, "targets": []}
+{"host_epoch_ms": 1787401742582, "frame_id": 8783, "msg_type": "0x0A0A", "data_len": 16, "presence_zones": [1, 0, 0, 0]}
+{"host_epoch_ms": 1787401742587, "frame_id": 8784, "msg_type": "0x0A04", "data_len": 4, "target_count": 0, "targets": []}
+{"host_epoch_ms": 1787401742643, "frame_id": 8785, "msg_type": "0x0A0A", "data_len": 16, "presence_zones": [1, 0, 0, 0]}
+{"host_epoch_ms": 1787401742643, "frame_id": 8786, "msg_type": "0x0A04", "data_len": 4, "target_count": 0, "targets": []}
+{"host_epoch_ms": 1787401742666, "frame_id": 8787, "msg_type": "0x0A0A", "data_len": 16, "presence_zones": [1, 0, 0, 0]}
+{"host_epoch_ms": 1787401742672, "frame_id": 8788, "msg_type": "0x0A04", "data_len": 4, "target_count": 0, "targets": []}
+{"host_epoch_ms": 1787401742722, "frame_id": 8789, "msg_type": "0x0A0A", "data_len": 16, "presence_zones": [1, 0, 0, 0]}
+{"host_epoch_ms": 1787401742722, "frame_id": 8790, "msg_type": "0x0A04", "data_len": 4, "target_count": 0, "targets": []}
+{"host_epoch_ms": 1787401742783, "frame_id": 8791, "msg_type": "0x0A0A", "data_len": 16, "presence_zones": [1, 0, 0, 0]}
+{"host_epoch_ms": 1787401742783, "frame_id": 8792, "msg_type": "0x0A04", "data_len": 4, "target_count": 0, "targets": []}
+{"host_epoch_ms": 1787401742811, "frame_id": 8793, "msg_type": "0x0A0A", "data_len": 16, "presence_zones": [1, 0, 0, 0]}
+{"host_epoch_ms": 1787401742811, "frame_id": 8794, "msg_type": "0x0A04", "data_len": 4, "target_count": 0, "targets": []}
+{"host_epoch_ms": 1787401742872, "frame_id": 8795, "msg_type": "0x0A0A", "data_len": 16, "presence_zones": [1, 0, 0, 0]}
+{"host_epoch_ms": 1787401742905, "frame_id": 8796, "msg_type": "0x0A04", "data_len": 4, "target_count": 0, "targets": []}
+{"host_epoch_ms": 1787401742933, "frame_id": 8797, "msg_type": "0x0A0A", "data_len": 16, "presence_zones": [1, 0, 0, 0]}
+{"host_epoch_ms": 1787401742961, "frame_id": 8798, "msg_type": "0x0A04", "data_len": 4, "target_count": 0, "targets": []}
+{"host_epoch_ms": 1787401742973, "frame_id": 8799, "msg_type": "0x0A0A", "data_len": 16, "presence_zones": [1, 0, 0, 0]}
+{"host_epoch_ms": 1787401742973, "frame_id": 8800, "msg_type": "0x0A04", "data_len": 4, "target_count": 0, "targets": []}
+{"host_epoch_ms": 1787401743023, "frame_id": 8801, "msg_type": "0x0A0A", "data_len": 16, "presence_zones": [1, 0, 0, 0]}
+{"host_epoch_ms": 1787401743023, "frame_id": 8802, "msg_type": "0x0A04", "data_len": 4, "target_count": 0, "targets": []}
+{"host_epoch_ms": 1787401743062, "frame_id": 8803, "msg_type": "0x0A0A", "data_len": 16, "presence_zones": [1, 0, 0, 0]}
+{"host_epoch_ms": 1787401743129, "frame_id": 8804, "msg_type": "0x0A04", "data_len": 4, "target_count": 0, "targets": []}
+{"host_epoch_ms": 1787401743129, "frame_id": 8805, "msg_type": "0x0A0A", "data_len": 16, "presence_zones": [1, 0, 0, 0]}
+{"host_epoch_ms": 1787401743135, "frame_id": 8806, "msg_type": "0x0A04", "data_len": 4, "target_count": 0, "targets": []}
+{"host_epoch_ms": 1787401743164, "frame_id": 8807, "msg_type": "0x0A0A", "data_len": 16, "presence_zones": [1, 0, 0, 0]}
+{"host_epoch_ms": 1787401743169, "frame_id": 8808, "msg_type": "0x0A04", "data_len": 4, "target_count": 0, "targets": []}
+{"host_epoch_ms": 1787401743234, "frame_id": 8809, "msg_type": "0x0A0A", "data_len": 16, "presence_zones": [1, 0, 0, 0]}
+{"host_epoch_ms": 1787401743234, "frame_id": 8810, "msg_type": "0x0A04", "data_len": 4, "target_count": 0, "targets": []}
+{"host_epoch_ms": 1787401743268, "frame_id": 8811, "msg_type": "0x0A0A", "data_len": 16, "presence_zones": [1, 0, 0, 0]}
+{"host_epoch_ms": 1787401743268, "frame_id": 8812, "msg_type": "0x0A04", "data_len": 4, "target_count": 0, "targets": []}
+{"host_epoch_ms": 1787401743318, "frame_id": 8813, "msg_type": "0x0A0A", "data_len": 16, "presence_zones": [1, 0, 0, 0]}
+{"host_epoch_ms": 1787401743318, "frame_id": 8814, "msg_type": "0x0A04", "data_len": 4, "target_count": 0, "targets": []}
+{"host_epoch_ms": 1787401743373, "frame_id": 8815, "msg_type": "0x0A0A", "data_len": 16, "presence_zones": [1, 0, 0, 0]}
+{"host_epoch_ms": 1787401743379, "frame_id": 8816, "msg_type": "0x0A04", "data_len": 4, "target_count": 0, "targets": []}
+{"host_epoch_ms": 1787401743412, "frame_id": 8817, "msg_type": "0x0A0A", "data_len": 16, "presence_zones": [1, 0, 0, 0]}
+{"host_epoch_ms": 1787401743418, "frame_id": 8818, "msg_type": "0x0A04", "data_len": 4, "target_count": 0, "targets": []}
+{"host_epoch_ms": 1787401743489, "frame_id": 8819, "msg_type": "0x0A0A", "data_len": 16, "presence_zones": [1, 0, 0, 0]}
+{"host_epoch_ms": 1787401743489, "frame_id": 8820, "msg_type": "0x0A04", "data_len": 4, "target_count": 0, "targets": []}
+{"host_epoch_ms": 1787401743517, "frame_id": 8821, "msg_type": "0x0A0A", "data_len": 16, "presence_zones": [1, 0, 0, 0]}
+{"host_epoch_ms": 1787401743517, "frame_id": 8822, "msg_type": "0x0A04", "data_len": 4, "target_count": 0, "targets": []}
+{"host_epoch_ms": 1787401743583, "frame_id": 8823, "msg_type": "0x0A0A", "data_len": 16, "presence_zones": [1, 0, 0, 0]}
+{"host_epoch_ms": 1787401743617, "frame_id": 8824, "msg_type": "0x0A04", "data_len": 4, "target_count": 0, "targets": []}
+{"host_epoch_ms": 1787401743617, "frame_id": 8825, "msg_type": "0x0A0A", "data_len": 16, "presence_zones": [1, 0, 0, 0]}
+{"host_epoch_ms": 1787401743617, "frame_id": 8826, "msg_type": "0x0A04", "data_len": 4, "target_count": 0, "targets": []}
+{"host_epoch_ms": 1787401743661, "frame_id": 8827, "msg_type": "0x0A0A", "data_len": 16, "presence_zones": [1, 0, 0, 0]}
+{"host_epoch_ms": 1787401743667, "frame_id": 8828, "msg_type": "0x0A04", "data_len": 4, "target_count": 0, "targets": []}
+{"host_epoch_ms": 1787401743727, "frame_id": 8829, "msg_type": "0x0A0A", "data_len": 16, "presence_zones": [1, 0, 0, 0]}
+{"host_epoch_ms": 1787401743727, "frame_id": 8830, "msg_type": "0x0A04", "data_len": 4, "target_count": 0, "targets": []}
+{"host_epoch_ms": 1787401743766, "frame_id": 8831, "msg_type": "0x0A0A", "data_len": 16, "presence_zones": [1, 0, 0, 0]}
+{"host_epoch_ms": 1787401743766, "frame_id": 8832, "msg_type": "0x0A04", "data_len": 4, "target_count": 0, "targets": []}
+{"host_epoch_ms": 1787401743821, "frame_id": 8833, "msg_type": "0x0A0A", "data_len": 16, "presence_zones": [1, 0, 0, 0]}
+{"host_epoch_ms": 1787401743821, "frame_id": 8834, "msg_type": "0x0A04", "data_len": 4, "target_count": 0, "targets": []}
+{"host_epoch_ms": 1787401743877, "frame_id": 8835, "msg_type": "0x0A0A", "data_len": 16, "presence_zones": [1, 0, 0, 0]}
+{"host_epoch_ms": 1787401743882, "frame_id": 8836, "msg_type": "0x0A04", "data_len": 4, "target_count": 0, "targets": []}
+{"host_epoch_ms": 1787401743937, "frame_id": 8837, "msg_type": "0x0A0A", "data_len": 16, "presence_zones": [1, 0, 0, 0]}
+{"host_epoch_ms": 1787401743937, "frame_id": 8838, "msg_type": "0x0A04", "data_len": 4, "target_count": 0, "targets": []}
+{"host_epoch_ms": 1787401743998, "frame_id": 8839, "msg_type": "0x0A0A", "data_len": 16, "presence_zones": [1, 0, 0, 0]}
+{"host_epoch_ms": 1787401743998, "frame_id": 8840, "msg_type": "0x0A04", "data_len": 4, "target_count": 0, "targets": []}
+{"host_epoch_ms": 1787401744026, "frame_id": 8841, "msg_type": "0x0A0A", "data_len": 16, "presence_zones": [1, 0, 0, 0]}
+{"host_epoch_ms": 1787401744026, "frame_id": 8842, "msg_type": "0x0A04", "data_len": 4, "target_count": 0, "targets": []}
+{"host_epoch_ms": 1787401744065, "frame_id": 8843, "msg_type": "0x0A0A", "data_len": 16, "presence_zones": [1, 0, 0, 0]}
+{"host_epoch_ms": 1787401744065, "frame_id": 8844, "msg_type": "0x0A04", "data_len": 4, "target_count": 0, "targets": []}
+{"host_epoch_ms": 1787401744120, "frame_id": 8845, "msg_type": "0x0A0A", "data_len": 16, "presence_zones": [1, 0, 0, 0]}
+{"host_epoch_ms": 1787401744120, "frame_id": 8846, "msg_type": "0x0A04", "data_len": 4, "target_count": 0, "targets": []}
+{"host_epoch_ms": 1787401744175, "frame_id": 8847, "msg_type": "0x0A0A", "data_len": 16, "presence_zones": [1, 0, 0, 0]}
+{"host_epoch_ms": 1787401744186, "frame_id": 8848, "msg_type": "0x0A04", "data_len": 4, "target_count": 0, "targets": []}
+{"host_epoch_ms": 1787401744253, "frame_id": 8849, "msg_type": "0x0A0A", "data_len": 16, "presence_zones": [1, 0, 0, 0]}
+{"host_epoch_ms": 1787401744253, "frame_id": 8850, "msg_type": "0x0A04", "data_len": 4, "target_count": 0, "targets": []}
+{"host_epoch_ms": 1787401744280, "frame_id": 8851, "msg_type": "0x0A0A", "data_len": 16, "presence_zones": [1, 0, 0, 0]}
+{"host_epoch_ms": 1787401744280, "frame_id": 8852, "msg_type": "0x0A04", "data_len": 4, "target_count": 0, "targets": []}
+{"host_epoch_ms": 1787401744368, "frame_id": 8853, "msg_type": "0x0A0A", "data_len": 16, "presence_zones": [1, 0, 0, 0]}
+{"host_epoch_ms": 1787401744418, "frame_id": 8854, "msg_type": "0x0A04", "data_len": 4, "target_count": 0, "targets": []}
+{"host_epoch_ms": 1787401744418, "frame_id": 8855, "msg_type": "0x0A0A", "data_len": 16, "presence_zones": [1, 0, 0, 0]}
+{"host_epoch_ms": 1787401744446, "frame_id": 8856, "msg_type": "0x0A04", "data_len": 4, "target_count": 0, "targets": []}
+{"host_epoch_ms": 1787401744446, "frame_id": 8857, "msg_type": "0x0A0A", "data_len": 16, "presence_zones": [1, 0, 0, 0]}
+{"host_epoch_ms": 1787401744474, "frame_id": 8858, "msg_type": "0x0A04", "data_len": 4, "target_count": 0, "targets": []}
+{"host_epoch_ms": 1787401744480, "frame_id": 8859, "msg_type": "0x0A0A", "data_len": 16, "presence_zones": [1, 0, 0, 0]}
+{"host_epoch_ms": 1787401744486, "frame_id": 8860, "msg_type": "0x0A04", "data_len": 4, "target_count": 0, "targets": []}
+{"host_epoch_ms": 1787401744514, "frame_id": 8861, "msg_type": "0x0A0A", "data_len": 16, "presence_zones": [1, 0, 0, 0]}
+{"host_epoch_ms": 1787401744514, "frame_id": 8862, "msg_type": "0x0A04", "data_len": 4, "target_count": 0, "targets": []}
+{"host_epoch_ms": 1787401744575, "frame_id": 8863, "msg_type": "0x0A0A", "data_len": 16, "presence_zones": [1, 0, 0, 0]}
+{"host_epoch_ms": 1787401744575, "frame_id": 8864, "msg_type": "0x0A04", "data_len": 4, "target_count": 0, "targets": []}
+{"host_epoch_ms": 1787401744616, "frame_id": 8865, "msg_type": "0x0A0A", "data_len": 16, "presence_zones": [1, 0, 0, 0]}
+{"host_epoch_ms": 1787401744616, "frame_id": 8866, "msg_type": "0x0A04", "data_len": 4, "target_count": 0, "targets": []}
+{"host_epoch_ms": 1787401744672, "frame_id": 8867, "msg_type": "0x0A0A", "data_len": 16, "presence_zones": [1, 0, 0, 0]}
+{"host_epoch_ms": 1787401744672, "frame_id": 8868, "msg_type": "0x0A04", "data_len": 4, "target_count": 0, "targets": []}
+{"host_epoch_ms": 1787401744733, "frame_id": 8869, "msg_type": "0x0A0A", "data_len": 16, "presence_zones": [1, 0, 0, 0]}
+{"host_epoch_ms": 1787401744733, "frame_id": 8870, "msg_type": "0x0A04", "data_len": 4, "target_count": 0, "targets": []}
+{"host_epoch_ms": 1787401744773, "frame_id": 8871, "msg_type": "0x0A0A", "data_len": 16, "presence_zones": [1, 0, 0, 0]}
+{"host_epoch_ms": 1787401744773, "frame_id": 8872, "msg_type": "0x0A04", "data_len": 4, "target_count": 0, "targets": []}
+{"host_epoch_ms": 1787401744822, "frame_id": 8873, "msg_type": "0x0A0A", "data_len": 16, "presence_zones": [1, 0, 0, 0]}
+{"host_epoch_ms": 1787401744839, "frame_id": 8874, "msg_type": "0x0A04", "data_len": 4, "target_count": 0, "targets": []}
+{"host_epoch_ms": 1787401744862, "frame_id": 8875, "msg_type": "0x0A0A", "data_len": 16, "presence_zones": [1, 0, 0, 0]}
+{"host_epoch_ms": 1787401744868, "frame_id": 8876, "msg_type": "0x0A04", "data_len": 4, "target_count": 0, "targets": []}
+{"host_epoch_ms": 1787401744923, "frame_id": 8877, "msg_type": "0x0A0A", "data_len": 16, "presence_zones": [1, 0, 0, 0]}
+{"host_epoch_ms": 1787401744923, "frame_id": 8878, "msg_type": "0x0A04", "data_len": 4, "target_count": 0, "targets": []}
+{"host_epoch_ms": 1787401744978, "frame_id": 8879, "msg_type": "0x0A0A", "data_len": 16, "presence_zones": [1, 0, 0, 0]}
+{"host_epoch_ms": 1787401744978, "frame_id": 8880, "msg_type": "0x0A04", "data_len": 4, "target_count": 0, "targets": []}
+{"host_epoch_ms": 1787401745039, "frame_id": 8881, "msg_type": "0x0A0A", "data_len": 16, "presence_zones": [1, 0, 0, 0]}
+{"host_epoch_ms": 1787401745039, "frame_id": 8882, "msg_type": "0x0A04", "data_len": 4, "target_count": 0, "targets": []}
+{"host_epoch_ms": 1787401745067, "frame_id": 8883, "msg_type": "0x0A0A", "data_len": 16, "presence_zones": [1, 0, 0, 0]}
+{"host_epoch_ms": 1787401745067, "frame_id": 8884, "msg_type": "0x0A04", "data_len": 4, "target_count": 0, "targets": []}
+{"host_epoch_ms": 1787401745116, "frame_id": 8885, "msg_type": "0x0A0A", "data_len": 16, "presence_zones": [1, 0, 0, 0]}
+{"host_epoch_ms": 1787401745116, "frame_id": 8886, "msg_type": "0x0A04", "data_len": 4, "target_count": 0, "targets": []}
+{"host_epoch_ms": 1787401745166, "frame_id": 8887, "msg_type": "0x0A0A", "data_len": 16, "presence_zones": [1, 0, 0, 0]}
+{"host_epoch_ms": 1787401745166, "frame_id": 8888, "msg_type": "0x0A04", "data_len": 4, "target_count": 0, "targets": []}
+{"host_epoch_ms": 1787401745226, "frame_id": 8889, "msg_type": "0x0A0A", "data_len": 16, "presence_zones": [1, 0, 0, 0]}
+{"host_epoch_ms": 1787401745232, "frame_id": 8890, "msg_type": "0x0A04", "data_len": 4, "target_count": 0, "targets": []}
+{"host_epoch_ms": 1787401745265, "frame_id": 8891, "msg_type": "0x0A0A", "data_len": 16, "presence_zones": [1, 0, 0, 0]}
+{"host_epoch_ms": 1787401745265, "frame_id": 8892, "msg_type": "0x0A04", "data_len": 4, "target_count": 0, "targets": []}
+{"host_epoch_ms": 1787401745321, "frame_id": 8893, "msg_type": "0x0A0A", "data_len": 16, "presence_zones": [1, 0, 0, 0]}
+{"host_epoch_ms": 1787401745326, "frame_id": 8894, "msg_type": "0x0A04", "data_len": 4, "target_count": 0, "targets": []}
+{"host_epoch_ms": 1787401745377, "frame_id": 8895, "msg_type": "0x0A0A", "data_len": 16, "presence_zones": [1, 0, 0, 0]}
+{"host_epoch_ms": 1787401745377, "frame_id": 8896, "msg_type": "0x0A04", "data_len": 4, "target_count": 0, "targets": []}
+{"host_epoch_ms": 1787401745436, "frame_id": 8897, "msg_type": "0x0A0A", "data_len": 16, "presence_zones": [1, 0, 0, 0]}
+{"host_epoch_ms": 1787401745470, "frame_id": 8898, "msg_type": "0x0A04", "data_len": 4, "target_count": 0, "targets": []}
+{"host_epoch_ms": 1787401745497, "frame_id": 8899, "msg_type": "0x0A0A", "data_len": 16, "presence_zones": [1, 0, 0, 0]}
+{"host_epoch_ms": 1787401745497, "frame_id": 8900, "msg_type": "0x0A04", "data_len": 4, "target_count": 0, "targets": []}
+{"host_epoch_ms": 1787401745530, "frame_id": 8901, "msg_type": "0x0A0A", "data_len": 16, "presence_zones": [1, 0, 0, 0]}
+{"host_epoch_ms": 1787401745530, "frame_id": 8902, "msg_type": "0x0A04", "data_len": 4, "target_count": 0, "targets": []}
+{"host_epoch_ms": 1787401745565, "frame_id": 8903, "msg_type": "0x0A0A", "data_len": 16, "presence_zones": [1, 0, 0, 0]}
+{"host_epoch_ms": 1787401745565, "frame_id": 8904, "msg_type": "0x0A04", "data_len": 4, "target_count": 0, "targets": []}
+{"host_epoch_ms": 1787401745624, "frame_id": 8905, "msg_type": "0x0A0A", "data_len": 16, "presence_zones": [1, 0, 0, 0]}
+{"host_epoch_ms": 1787401745624, "frame_id": 8906, "msg_type": "0x0A04", "data_len": 4, "target_count": 0, "targets": []}
+{"host_epoch_ms": 1787401745664, "frame_id": 8907, "msg_type": "0x0A0A", "data_len": 16, "presence_zones": [1, 0, 0, 0]}
+{"host_epoch_ms": 1787401745670, "frame_id": 8908, "msg_type": "0x0A04", "data_len": 4, "target_count": 0, "targets": []}
+{"host_epoch_ms": 1787401745736, "frame_id": 8909, "msg_type": "0x0A0A", "data_len": 16, "presence_zones": [1, 0, 0, 0]}
+{"host_epoch_ms": 1787401745736, "frame_id": 8910, "msg_type": "0x0A04", "data_len": 4, "target_count": 0, "targets": []}
+{"host_epoch_ms": 1787401745764, "frame_id": 8911, "msg_type": "0x0A0A", "data_len": 16, "presence_zones": [1, 0, 0, 0]}
+{"host_epoch_ms": 1787401745764, "frame_id": 8912, "msg_type": "0x0A04", "data_len": 4, "target_count": 0, "targets": []}
+{"host_epoch_ms": 1787401745820, "frame_id": 8913, "msg_type": "0x0A0A", "data_len": 16, "presence_zones": [1, 0, 0, 0]}
+{"host_epoch_ms": 1787401745820, "frame_id": 8914, "msg_type": "0x0A04", "data_len": 4, "target_count": 0, "targets": []}
+{"host_epoch_ms": 1787401745881, "frame_id": 8915, "msg_type": "0x0A0A", "data_len": 16, "presence_zones": [1, 0, 0, 0]}
+{"host_epoch_ms": 1787401745892, "frame_id": 8916, "msg_type": "0x0A04", "data_len": 4, "target_count": 0, "targets": []}
+{"host_epoch_ms": 1787401745914, "frame_id": 8917, "msg_type": "0x0A0A", "data_len": 16, "presence_zones": [1, 0, 0, 0]}
+{"host_epoch_ms": 1787401745920, "frame_id": 8918, "msg_type": "0x0A04", "data_len": 4, "target_count": 0, "targets": []}
+{"host_epoch_ms": 1787401745980, "frame_id": 8919, "msg_type": "0x0A0A", "data_len": 16, "presence_zones": [1, 0, 0, 0]}
+{"host_epoch_ms": 1787401745980, "frame_id": 8920, "msg_type": "0x0A04", "data_len": 4, "target_count": 0, "targets": []}
+{"host_epoch_ms": 1787401746019, "frame_id": 8921, "msg_type": "0x0A0A", "data_len": 16, "presence_zones": [1, 0, 0, 0]}
+{"host_epoch_ms": 1787401746069, "frame_id": 8922, "msg_type": "0x0A04", "data_len": 4, "target_count": 0, "targets": []}
+{"host_epoch_ms": 1787401746069, "frame_id": 8923, "msg_type": "0x0A0A", "data_len": 16, "presence_zones": [1, 0, 0, 0]}
+{"host_epoch_ms": 1787401746086, "frame_id": 8924, "msg_type": "0x0A04", "data_len": 4, "target_count": 0, "targets": []}
+{"host_epoch_ms": 1787401746114, "frame_id": 8925, "msg_type": "0x0A0A", "data_len": 16, "presence_zones": [1, 0, 0, 0]}
+{"host_epoch_ms": 1787401746142, "frame_id": 8926, "msg_type": "0x0A04", "data_len": 4, "target_count": 0, "targets": []}
+{"host_epoch_ms": 1787401746175, "frame_id": 8927, "msg_type": "0x0A0A", "data_len": 16, "presence_zones": [1, 0, 0, 0]}
+{"host_epoch_ms": 1787401746175, "frame_id": 8928, "msg_type": "0x0A04", "data_len": 4, "target_count": 0, "targets": []}
+{"host_epoch_ms": 1787401746258, "frame_id": 8929, "msg_type": "0x0A0A", "data_len": 16, "presence_zones": [1, 0, 0, 0]}
+{"host_epoch_ms": 1787401746263, "frame_id": 8930, "msg_type": "0x0A04", "data_len": 4, "target_count": 0, "targets": []}
+{"host_epoch_ms": 1787401746263, "frame_id": 8931, "msg_type": "0x0A0A", "data_len": 16, "presence_zones": [1, 0, 0, 0]}
+{"host_epoch_ms": 1787401746263, "frame_id": 8932, "msg_type": "0x0A04", "data_len": 4, "target_count": 0, "targets": []}
+{"host_epoch_ms": 1787401746330, "frame_id": 8933, "msg_type": "0x0A0A", "data_len": 16, "presence_zones": [1, 0, 0, 0]}
+{"host_epoch_ms": 1787401746330, "frame_id": 8934, "msg_type": "0x0A04", "data_len": 4, "target_count": 0, "targets": []}
+{"host_epoch_ms": 1787401746364, "frame_id": 8935, "msg_type": "0x0A0A", "data_len": 16, "presence_zones": [1, 0, 0, 0]}
+{"host_epoch_ms": 1787401746364, "frame_id": 8936, "msg_type": "0x0A04", "data_len": 4, "target_count": 0, "targets": []}
+{"host_epoch_ms": 1787401746414, "frame_id": 8937, "msg_type": "0x0A0A", "data_len": 16, "presence_zones": [1, 0, 0, 0]}
+{"host_epoch_ms": 1787401746419, "frame_id": 8938, "msg_type": "0x0A04", "data_len": 4, "target_count": 0, "targets": []}
+{"host_epoch_ms": 1787401746498, "frame_id": 8939, "msg_type": "0x0A0A", "data_len": 16, "presence_zones": [1, 0, 0, 0]}
+{"host_epoch_ms": 1787401746531, "frame_id": 8940, "msg_type": "0x0A04", "data_len": 4, "target_count": 0, "targets": []}
+{"host_epoch_ms": 1787401746531, "frame_id": 8941, "msg_type": "0x0A0A", "data_len": 16, "presence_zones": [1, 0, 0, 0]}
+{"host_epoch_ms": 1787401746559, "frame_id": 8942, "msg_type": "0x0A04", "data_len": 4, "target_count": 0, "targets": []}
+{"host_epoch_ms": 1787401746566, "frame_id": 8943, "msg_type": "0x0A0A", "data_len": 16, "presence_zones": [1, 0, 0, 0]}
+{"host_epoch_ms": 1787401746566, "frame_id": 8944, "msg_type": "0x0A04", "data_len": 4, "target_count": 0, "targets": []}
+{"host_epoch_ms": 1787401746616, "frame_id": 8945, "msg_type": "0x0A0A", "data_len": 16, "presence_zones": [1, 0, 0, 0]}
+{"host_epoch_ms": 1787401746616, "frame_id": 8946, "msg_type": "0x0A04", "data_len": 4, "target_count": 0, "targets": []}
+{"host_epoch_ms": 1787401746682, "frame_id": 8947, "msg_type": "0x0A0A", "data_len": 16, "presence_zones": [1, 0, 0, 0]}
+{"host_epoch_ms": 1787401746682, "frame_id": 8948, "msg_type": "0x0A04", "data_len": 4, "target_count": 0, "targets": []}
+{"host_epoch_ms": 1787401746726, "frame_id": 8949, "msg_type": "0x0A0A", "data_len": 16, "presence_zones": [1, 0, 0, 0]}
+{"host_epoch_ms": 1787401746726, "frame_id": 8950, "msg_type": "0x0A04", "data_len": 4, "target_count": 0, "targets": []}
+{"host_epoch_ms": 1787401746766, "frame_id": 8951, "msg_type": "0x0A0A", "data_len": 16, "presence_zones": [1, 0, 0, 0]}
+{"host_epoch_ms": 1787401746772, "frame_id": 8952, "msg_type": "0x0A04", "data_len": 4, "target_count": 0, "targets": []}
+{"host_epoch_ms": 1787401746828, "frame_id": 8953, "msg_type": "0x0A0A", "data_len": 16, "presence_zones": [1, 0, 0, 0]}
+{"host_epoch_ms": 1787401746828, "frame_id": 8954, "msg_type": "0x0A04", "data_len": 4, "target_count": 0, "targets": []}
+{"host_epoch_ms": 1787401746883, "frame_id": 8955, "msg_type": "0x0A0A", "data_len": 16, "presence_zones": [1, 0, 0, 0]}
+{"host_epoch_ms": 1787401746889, "frame_id": 8956, "msg_type": "0x0A04", "data_len": 4, "target_count": 0, "targets": []}
+{"host_epoch_ms": 1787401746945, "frame_id": 8957, "msg_type": "0x0A0A", "data_len": 16, "presence_zones": [1, 0, 0, 0]}
+{"host_epoch_ms": 1787401746945, "frame_id": 8958, "msg_type": "0x0A04", "data_len": 4, "target_count": 0, "targets": []}
+{"host_epoch_ms": 1787401747012, "frame_id": 8959, "msg_type": "0x0A0A", "data_len": 16, "presence_zones": [1, 0, 0, 0]}
+{"host_epoch_ms": 1787401747018, "frame_id": 8960, "msg_type": "0x0A04", "data_len": 4, "target_count": 0, "targets": []}
+{"host_epoch_ms": 1787401747018, "frame_id": 8961, "msg_type": "0x0A0A", "data_len": 16, "presence_zones": [1, 0, 0, 0]}
+{"host_epoch_ms": 1787401747024, "frame_id": 8962, "msg_type": "0x0A04", "data_len": 4, "target_count": 0, "targets": []}
+{"host_epoch_ms": 1787401747064, "frame_id": 8963, "msg_type": "0x0A0A", "data_len": 16, "presence_zones": [1, 0, 0, 0]}
+{"host_epoch_ms": 1787401747064, "frame_id": 8964, "msg_type": "0x0A04", "data_len": 4, "target_count": 0, "targets": []}
+{"host_epoch_ms": 1787401747125, "frame_id": 8965, "msg_type": "0x0A0A", "data_len": 16, "presence_zones": [1, 0, 0, 0]}
+{"host_epoch_ms": 1787401747125, "frame_id": 8966, "msg_type": "0x0A04", "data_len": 4, "target_count": 0, "targets": []}
+{"host_epoch_ms": 1787401747164, "frame_id": 8967, "msg_type": "0x0A0A", "data_len": 16, "presence_zones": [1, 0, 0, 0]}
+{"host_epoch_ms": 1787401747164, "frame_id": 8968, "msg_type": "0x0A04", "data_len": 4, "target_count": 0, "targets": []}
+{"host_epoch_ms": 1787401747265, "frame_id": 8969, "msg_type": "0x0A0A", "data_len": 16, "presence_zones": [1, 0, 0, 0]}
+{"host_epoch_ms": 1787401747298, "frame_id": 8970, "msg_type": "0x0A04", "data_len": 4, "target_count": 0, "targets": []}
+{"host_epoch_ms": 1787401747298, "frame_id": 8971, "msg_type": "0x0A0A", "data_len": 16, "presence_zones": [1, 0, 0, 0]}
+{"host_epoch_ms": 1787401747328, "frame_id": 8972, "msg_type": "0x0A04", "data_len": 4, "target_count": 0, "targets": []}
+{"host_epoch_ms": 1787401747328, "frame_id": 8973, "msg_type": "0x0A0A", "data_len": 16, "presence_zones": [1, 0, 0, 0]}
+{"host_epoch_ms": 1787401747367, "frame_id": 8974, "msg_type": "0x0A04", "data_len": 4, "target_count": 0, "targets": []}
+{"host_epoch_ms": 1787401747367, "frame_id": 8975, "msg_type": "0x0A0A", "data_len": 16, "presence_zones": [1, 0, 0, 0]}
+{"host_epoch_ms": 1787401747373, "frame_id": 8976, "msg_type": "0x0A04", "data_len": 4, "target_count": 0, "targets": []}
+{"host_epoch_ms": 1787401747434, "frame_id": 8977, "msg_type": "0x0A0A", "data_len": 16, "presence_zones": [1, 0, 0, 0]}
+{"host_epoch_ms": 1787401747434, "frame_id": 8978, "msg_type": "0x0A04", "data_len": 4, "target_count": 0, "targets": []}
+{"host_epoch_ms": 1787401747485, "frame_id": 8979, "msg_type": "0x0A0A", "data_len": 16, "presence_zones": [1, 0, 0, 0]}
+{"host_epoch_ms": 1787401747485, "frame_id": 8980, "msg_type": "0x0A04", "data_len": 24, "target_count": 1, "targets": [{"id": 1, "x": 0.125, "y": -0.457, "z": 1.447, "doppler": 0}]}
+{"host_epoch_ms": 1787401747518, "frame_id": 8981, "msg_type": "0x0A0A", "data_len": 16, "presence_zones": [1, 0, 0, 0]}
+{"host_epoch_ms": 1787401747518, "frame_id": 8982, "msg_type": "0x0A04", "data_len": 24, "target_count": 1, "targets": [{"id": 1, "x": 0.125, "y": -0.457, "z": 1.447, "doppler": 0}]}
+{"host_epoch_ms": 1787401747574, "frame_id": 8983, "msg_type": "0x0A0A", "data_len": 16, "presence_zones": [1, 0, 0, 0]}
+{"host_epoch_ms": 1787401747574, "frame_id": 8984, "msg_type": "0x0A04", "data_len": 24, "target_count": 1, "targets": [{"id": 1, "x": 0.125, "y": -0.457, "z": 1.447, "doppler": 0}]}
+{"host_epoch_ms": 1787401747641, "frame_id": 8985, "msg_type": "0x0A0A", "data_len": 16, "presence_zones": [1, 0, 0, 0]}
+{"host_epoch_ms": 1787401747680, "frame_id": 8986, "msg_type": "0x0A04", "data_len": 24, "target_count": 1, "targets": [{"id": 1, "x": 0.125, "y": -0.457, "z": 1.447, "doppler": 0}]}
+{"host_epoch_ms": 1787401747680, "frame_id": 8987, "msg_type": "0x0A0A", "data_len": 16, "presence_zones": [1, 0, 0, 0]}
+{"host_epoch_ms": 1787401747680, "frame_id": 8988, "msg_type": "0x0A04", "data_len": 24, "target_count": 1, "targets": [{"id": 1, "x": 0.125, "y": -0.457, "z": 1.447, "doppler": 0}]}
+{"host_epoch_ms": 1787401747742, "frame_id": 8989, "msg_type": "0x0A0A", "data_len": 16, "presence_zones": [1, 0, 0, 0]}
+{"host_epoch_ms": 1787401747742, "frame_id": 8990, "msg_type": "0x0A04", "data_len": 24, "target_count": 1, "targets": [{"id": 1, "x": 0.125, "y": -0.457, "z": 1.447, "doppler": 0}]}
+{"host_epoch_ms": 1787401747765, "frame_id": 8991, "msg_type": "0x0A0A", "data_len": 16, "presence_zones": [1, 0, 0, 0]}
+{"host_epoch_ms": 1787401747781, "frame_id": 8992, "msg_type": "0x0A04", "data_len": 24, "target_count": 1, "targets": [{"id": 1, "x": 0.125, "y": -0.457, "z": 1.447, "doppler": 0}]}
+{"host_epoch_ms": 1787401747821, "frame_id": 8993, "msg_type": "0x0A0A", "data_len": 16, "presence_zones": [1, 0, 0, 0]}
+{"host_epoch_ms": 1787401747826, "frame_id": 8994, "msg_type": "0x0A04", "data_len": 24, "target_count": 1, "targets": [{"id": 1, "x": 0.125, "y": -0.457, "z": 1.447, "doppler": 0}]}
+{"host_epoch_ms": 1787401747878, "frame_id": 8995, "msg_type": "0x0A0A", "data_len": 16, "presence_zones": [1, 0, 0, 0]}
+{"host_epoch_ms": 1787401747884, "frame_id": 8996, "msg_type": "0x0A04", "data_len": 24, "target_count": 1, "targets": [{"id": 1, "x": 0.125, "y": -0.457, "z": 1.447, "doppler": 0}]}
+{"host_epoch_ms": 1787401747955, "frame_id": 8997, "msg_type": "0x0A0A", "data_len": 16, "presence_zones": [1, 0, 0, 0]}
+{"host_epoch_ms": 1787401747982, "frame_id": 8998, "msg_type": "0x0A04", "data_len": 24, "target_count": 1, "targets": [{"id": 1, "x": 0.125, "y": -0.457, "z": 1.447, "doppler": 0}]}
+{"host_epoch_ms": 1787401748010, "frame_id": 8999, "msg_type": "0x0A0A", "data_len": 16, "presence_zones": [1, 0, 0, 0]}
+{"host_epoch_ms": 1787401748037, "frame_id": 9000, "msg_type": "0x0A04", "data_len": 24, "target_count": 1, "targets": [{"id": 1, "x": 0.125, "y": -0.457, "z": 1.447, "doppler": 0}]}
+{"host_epoch_ms": 1787401748043, "frame_id": 9001, "msg_type": "0x0A0A", "data_len": 16, "presence_zones": [1, 0, 0, 0]}
+{"host_epoch_ms": 1787401748086, "frame_id": 9002, "msg_type": "0x0A04", "data_len": 24, "target_count": 1, "targets": [{"id": 1, "x": 0.125, "y": -0.457, "z": 1.447, "doppler": 0}]}
+{"host_epoch_ms": 1787401748092, "frame_id": 9003, "msg_type": "0x0A0A", "data_len": 16, "presence_zones": [1, 0, 0, 0]}
+{"host_epoch_ms": 1787401748119, "frame_id": 9004, "msg_type": "0x0A04", "data_len": 24, "target_count": 1, "targets": [{"id": 1, "x": 0.125, "y": -0.457, "z": 1.447, "doppler": 0}]}
+{"host_epoch_ms": 1787401748119, "frame_id": 9005, "msg_type": "0x0A0A", "data_len": 16, "presence_zones": [1, 0, 0, 0]}
+{"host_epoch_ms": 1787401748147, "frame_id": 9006, "msg_type": "0x0A04", "data_len": 24, "target_count": 1, "targets": [{"id": 1, "x": 0.125, "y": -0.457, "z": 1.447, "doppler": 0}]}
+{"host_epoch_ms": 1787401748180, "frame_id": 9007, "msg_type": "0x0A0A", "data_len": 16, "presence_zones": [1, 0, 0, 0]}
+{"host_epoch_ms": 1787401748191, "frame_id": 9008, "msg_type": "0x0A04", "data_len": 24, "target_count": 1, "targets": [{"id": 1, "x": 0.125, "y": -0.457, "z": 1.447, "doppler": 0}]}
+{"host_epoch_ms": 1787401748230, "frame_id": 9009, "msg_type": "0x0A0A", "data_len": 16, "presence_zones": [1, 0, 0, 0]}
+{"host_epoch_ms": 1787401748246, "frame_id": 9010, "msg_type": "0x0A04", "data_len": 24, "target_count": 1, "targets": [{"id": 1, "x": 0.125, "y": -0.457, "z": 1.447, "doppler": 0}]}
+{"host_epoch_ms": 1787401748270, "frame_id": 9011, "msg_type": "0x0A0A", "data_len": 16, "presence_zones": [1, 0, 0, 0]}
+{"host_epoch_ms": 1787401748276, "frame_id": 9012, "msg_type": "0x0A04", "data_len": 24, "target_count": 1, "targets": [{"id": 1, "x": 0.125, "y": -0.457, "z": 1.447, "doppler": 0}]}
+{"host_epoch_ms": 1787401748315, "frame_id": 9013, "msg_type": "0x0A0A", "data_len": 16, "presence_zones": [1, 0, 0, 0]}
+{"host_epoch_ms": 1787401748320, "frame_id": 9014, "msg_type": "0x0A04", "data_len": 24, "target_count": 1, "targets": [{"id": 1, "x": 0.125, "y": -0.457, "z": 1.447, "doppler": 0}]}
+{"host_epoch_ms": 1787401748371, "frame_id": 9015, "msg_type": "0x0A0A", "data_len": 16, "presence_zones": [1, 0, 0, 0]}
+{"host_epoch_ms": 1787401748393, "frame_id": 9016, "msg_type": "0x0A04", "data_len": 24, "target_count": 1, "targets": [{"id": 1, "x": 0.125, "y": -0.457, "z": 1.447, "doppler": 0}]}
+{"host_epoch_ms": 1787401748427, "frame_id": 9017, "msg_type": "0x0A0A", "data_len": 16, "presence_zones": [1, 0, 0, 0]}
+{"host_epoch_ms": 1787401748432, "frame_id": 9018, "msg_type": "0x0A04", "data_len": 24, "target_count": 1, "targets": [{"id": 1, "x": 0.125, "y": -0.457, "z": 1.447, "doppler": 0}]}
+{"host_epoch_ms": 1787401748482, "frame_id": 9019, "msg_type": "0x0A0A", "data_len": 16, "presence_zones": [1, 0, 0, 0]}
+{"host_epoch_ms": 1787401748493, "frame_id": 9020, "msg_type": "0x0A04", "data_len": 24, "target_count": 1, "targets": [{"id": 1, "x": 0.125, "y": -0.457, "z": 1.447, "doppler": 0}]}
+{"host_epoch_ms": 1787401748565, "frame_id": 9021, "msg_type": "0x0A0A", "data_len": 16, "presence_zones": [1, 0, 0, 0]}
+{"host_epoch_ms": 1787401748572, "frame_id": 9022, "msg_type": "0x0A04", "data_len": 24, "target_count": 1, "targets": [{"id": 1, "x": 0.125, "y": -0.457, "z": 1.447, "doppler": 0}]}
+{"host_epoch_ms": 1787401748578, "frame_id": 9023, "msg_type": "0x0A0A", "data_len": 16, "presence_zones": [1, 0, 0, 0]}
+{"host_epoch_ms": 1787401748584, "frame_id": 9024, "msg_type": "0x0A04", "data_len": 24, "target_count": 1, "targets": [{"id": 1, "x": 0.125, "y": -0.457, "z": 1.447, "doppler": 0}]}
+{"host_epoch_ms": 1787401748640, "frame_id": 9025, "msg_type": "0x0A0A", "data_len": 16, "presence_zones": [1, 0, 0, 0]}
+{"host_epoch_ms": 1787401748663, "frame_id": 9026, "msg_type": "0x0A04", "data_len": 24, "target_count": 1, "targets": [{"id": 1, "x": 0.125, "y": -0.457, "z": 1.447, "doppler": 0}]}
+{"host_epoch_ms": 1787401748680, "frame_id": 9027, "msg_type": "0x0A0A", "data_len": 16, "presence_zones": [1, 0, 0, 0]}
+{"host_epoch_ms": 1787401748680, "frame_id": 9028, "msg_type": "0x0A04", "data_len": 24, "target_count": 1, "targets": [{"id": 1, "x": 0.125, "y": -0.457, "z": 1.447, "doppler": 0}]}
+{"host_epoch_ms": 1787401748745, "frame_id": 9029, "msg_type": "0x0A0A", "data_len": 16, "presence_zones": [1, 0, 0, 0]}
+{"host_epoch_ms": 1787401748800, "frame_id": 9030, "msg_type": "0x0A04", "data_len": 24, "target_count": 1, "targets": [{"id": 1, "x": 0.125, "y": -0.457, "z": 1.447, "doppler": 0}]}
+{"host_epoch_ms": 1787401748806, "frame_id": 9031, "msg_type": "0x0A0A", "data_len": 16, "presence_zones": [1, 0, 0, 0]}
+{"host_epoch_ms": 1787401748823, "frame_id": 9032, "msg_type": "0x0A04", "data_len": 24, "target_count": 1, "targets": [{"id": 1, "x": 0.125, "y": -0.457, "z": 1.447, "doppler": 0}]}
+{"host_epoch_ms": 1787401748823, "frame_id": 9033, "msg_type": "0x0A0A", "data_len": 16, "presence_zones": [1, 0, 0, 0]}
+{"host_epoch_ms": 1787401748823, "frame_id": 9034, "msg_type": "0x0A04", "data_len": 24, "target_count": 1, "targets": [{"id": 1, "x": 0.125, "y": -0.457, "z": 1.447, "doppler": 0}]}
+{"host_epoch_ms": 1787401748883, "frame_id": 9035, "msg_type": "0x0A0A", "data_len": 16, "presence_zones": [1, 0, 0, 0]}
+{"host_epoch_ms": 1787401748889, "frame_id": 9036, "msg_type": "0x0A04", "data_len": 24, "target_count": 1, "targets": [{"id": 1, "x": 0.125, "y": -0.457, "z": 1.447, "doppler": 0}]}
+{"host_epoch_ms": 1787401748928, "frame_id": 9037, "msg_type": "0x0A0A", "data_len": 16, "presence_zones": [1, 0, 0, 0]}
+{"host_epoch_ms": 1787401748934, "frame_id": 9038, "msg_type": "0x0A04", "data_len": 24, "target_count": 1, "targets": [{"id": 1, "x": 0.125, "y": -0.457, "z": 1.447, "doppler": 0}]}
+{"host_epoch_ms": 1787401748986, "frame_id": 9039, "msg_type": "0x0A0A", "data_len": 16, "presence_zones": [1, 0, 0, 0]}
+{"host_epoch_ms": 1787401748992, "frame_id": 9040, "msg_type": "0x0A04", "data_len": 24, "target_count": 1, "targets": [{"id": 1, "x": 0.125, "y": -0.457, "z": 1.447, "doppler": 0}]}
+{"host_epoch_ms": 1787401749015, "frame_id": 9041, "msg_type": "0x0A0A", "data_len": 16, "presence_zones": [1, 0, 0, 0]}
+{"host_epoch_ms": 1787401749021, "frame_id": 9042, "msg_type": "0x0A04", "data_len": 24, "target_count": 1, "targets": [{"id": 1, "x": 0.125, "y": -0.457, "z": 1.447, "doppler": 0}]}
+{"host_epoch_ms": 1787401749093, "frame_id": 9043, "msg_type": "0x0A0A", "data_len": 16, "presence_zones": [1, 0, 0, 0]}
+{"host_epoch_ms": 1787401749148, "frame_id": 9044, "msg_type": "0x0A04", "data_len": 24, "target_count": 1, "targets": [{"id": 1, "x": 0.125, "y": -0.457, "z": 1.447, "doppler": 0}]}
+{"host_epoch_ms": 1787401749148, "frame_id": 9045, "msg_type": "0x0A0A", "data_len": 16, "presence_zones": [1, 0, 0, 0]}
+{"host_epoch_ms": 1787401749161, "frame_id": 9046, "msg_type": "0x0A04", "data_len": 24, "target_count": 1, "targets": [{"id": 1, "x": 0.125, "y": -0.457, "z": 1.447, "doppler": 0}]}
+{"host_epoch_ms": 1787401749167, "frame_id": 9047, "msg_type": "0x0A0A", "data_len": 16, "presence_zones": [1, 0, 0, 0]}
+{"host_epoch_ms": 1787401749167, "frame_id": 9048, "msg_type": "0x0A04", "data_len": 24, "target_count": 1, "targets": [{"id": 1, "x": 0.125, "y": -0.457, "z": 1.447, "doppler": 0}]}
+{"host_epoch_ms": 1787401749253, "frame_id": 9049, "msg_type": "0x0A0A", "data_len": 16, "presence_zones": [1, 0, 0, 0]}
+{"host_epoch_ms": 1787401749275, "frame_id": 9050, "msg_type": "0x0A04", "data_len": 24, "target_count": 1, "targets": [{"id": 1, "x": 0.125, "y": -0.457, "z": 1.447, "doppler": 0}]}
+{"host_epoch_ms": 1787401749281, "frame_id": 9051, "msg_type": "0x0A0A", "data_len": 16, "presence_zones": [1, 0, 0, 0]}
+{"host_epoch_ms": 1787401749287, "frame_id": 9052, "msg_type": "0x0A04", "data_len": 24, "target_count": 1, "targets": [{"id": 1, "x": 0.125, "y": -0.457, "z": 1.447, "doppler": 0}]}
+{"host_epoch_ms": 1787401749314, "frame_id": 9053, "msg_type": "0x0A0A", "data_len": 16, "presence_zones": [1, 0, 0, 0]}
+{"host_epoch_ms": 1787401749320, "frame_id": 9054, "msg_type": "0x0A04", "data_len": 24, "target_count": 1, "targets": [{"id": 1, "x": 0.125, "y": -0.457, "z": 1.447, "doppler": 0}]}
+{"host_epoch_ms": 1787401749376, "frame_id": 9055, "msg_type": "0x0A0A", "data_len": 16, "presence_zones": [1, 0, 0, 0]}
+{"host_epoch_ms": 1787401749421, "frame_id": 9056, "msg_type": "0x0A04", "data_len": 24, "target_count": 1, "targets": [{"id": 1, "x": 0.125, "y": -0.457, "z": 1.447, "doppler": 0}]}
+{"host_epoch_ms": 1787401749421, "frame_id": 9057, "msg_type": "0x0A0A", "data_len": 16, "presence_zones": [1, 0, 0, 0]}
+{"host_epoch_ms": 1787401749449, "frame_id": 9058, "msg_type": "0x0A04", "data_len": 24, "target_count": 1, "targets": [{"id": 1, "x": 0.125, "y": -0.457, "z": 1.447, "doppler": 0}]}
+{"host_epoch_ms": 1787401749504, "frame_id": 9059, "msg_type": "0x0A0A", "data_len": 16, "presence_zones": [1, 0, 0, 0]}
+{"host_epoch_ms": 1787401749521, "frame_id": 9060, "msg_type": "0x0A04", "data_len": 24, "target_count": 1, "targets": [{"id": 1, "x": 0.125, "y": -0.457, "z": 1.447, "doppler": 0}]}
+{"host_epoch_ms": 1787401749527, "frame_id": 9061, "msg_type": "0x0A0A", "data_len": 16, "presence_zones": [1, 0, 0, 0]}
+{"host_epoch_ms": 1787401749538, "frame_id": 9062, "msg_type": "0x0A04", "data_len": 24, "target_count": 1, "targets": [{"id": 1, "x": 0.125, "y": -0.457, "z": 1.447, "doppler": 0}]}
+{"host_epoch_ms": 1787401749566, "frame_id": 9063, "msg_type": "0x0A0A", "data_len": 16, "presence_zones": [1, 0, 0, 0]}
+{"host_epoch_ms": 1787401749567, "frame_id": 9064, "msg_type": "0x0A04", "data_len": 24, "target_count": 1, "targets": [{"id": 1, "x": 0.125, "y": -0.457, "z": 1.447, "doppler": 0}]}
+{"host_epoch_ms": 1787401749617, "frame_id": 9065, "msg_type": "0x0A0A", "data_len": 16, "presence_zones": [1, 0, 0, 0]}
+{"host_epoch_ms": 1787401749617, "frame_id": 9066, "msg_type": "0x0A04", "data_len": 24, "target_count": 1, "targets": [{"id": 1, "x": 0.125, "y": -0.457, "z": 1.447, "doppler": 0}]}
+{"host_epoch_ms": 1787401749675, "frame_id": 9067, "msg_type": "0x0A0A", "data_len": 16, "presence_zones": [1, 0, 0, 0]}
+{"host_epoch_ms": 1787401749682, "frame_id": 9068, "msg_type": "0x0A04", "data_len": 24, "target_count": 1, "targets": [{"id": 1, "x": 0.125, "y": -0.457, "z": 1.447, "doppler": 0}]}
+{"host_epoch_ms": 1787401749737, "frame_id": 9069, "msg_type": "0x0A0A", "data_len": 16, "presence_zones": [1, 0, 0, 0]}
+{"host_epoch_ms": 1787401749744, "frame_id": 9070, "msg_type": "0x0A04", "data_len": 24, "target_count": 1, "targets": [{"id": 1, "x": 0.125, "y": -0.457, "z": 1.447, "doppler": 0}]}
+{"host_epoch_ms": 1787401749771, "frame_id": 9071, "msg_type": "0x0A0A", "data_len": 16, "presence_zones": [1, 0, 0, 0]}
+{"host_epoch_ms": 1787401749771, "frame_id": 9072, "msg_type": "0x0A04", "data_len": 24, "target_count": 1, "targets": [{"id": 1, "x": 0.125, "y": -0.457, "z": 1.447, "doppler": 0}]}
+{"host_epoch_ms": 1787401749835, "frame_id": 9073, "msg_type": "0x0A0A", "data_len": 16, "presence_zones": [1, 0, 0, 0]}
+{"host_epoch_ms": 1787401749863, "frame_id": 9074, "msg_type": "0x0A04", "data_len": 24, "target_count": 1, "targets": [{"id": 1, "x": 0.125, "y": -0.457, "z": 1.447, "doppler": 0}]}
+{"host_epoch_ms": 1787401749890, "frame_id": 9075, "msg_type": "0x0A0A", "data_len": 16, "presence_zones": [1, 0, 0, 0]}
+{"host_epoch_ms": 1787401749919, "frame_id": 9076, "msg_type": "0x0A04", "data_len": 24, "target_count": 1, "targets": [{"id": 1, "x": 0.125, "y": -0.457, "z": 1.447, "doppler": 0}]}
+{"host_epoch_ms": 1787401749952, "frame_id": 9077, "msg_type": "0x0A0A", "data_len": 16, "presence_zones": [1, 0, 0, 0]}
+{"host_epoch_ms": 1787401749959, "frame_id": 9078, "msg_type": "0x0A04", "data_len": 24, "target_count": 1, "targets": [{"id": 1, "x": 0.125, "y": -0.457, "z": 1.447, "doppler": 0}]}
+{"host_epoch_ms": 1787401749976, "frame_id": 9079, "msg_type": "0x0A0A", "data_len": 16, "presence_zones": [1, 0, 0, 0]}
+{"host_epoch_ms": 1787401749976, "frame_id": 9080, "msg_type": "0x0A04", "data_len": 24, "target_count": 1, "targets": [{"id": 1, "x": 0.125, "y": -0.457, "z": 1.447, "doppler": 0}]}
+{"host_epoch_ms": 1787401750027, "frame_id": 9081, "msg_type": "0x0A0A", "data_len": 16, "presence_zones": [1, 0, 0, 0]}
+{"host_epoch_ms": 1787401750034, "frame_id": 9082, "msg_type": "0x0A04", "data_len": 24, "target_count": 1, "targets": [{"id": 1, "x": 0.125, "y": -0.457, "z": 1.447, "doppler": 0}]}
+{"host_epoch_ms": 1787401750067, "frame_id": 9083, "msg_type": "0x0A0A", "data_len": 16, "presence_zones": [1, 0, 0, 0]}
+{"host_epoch_ms": 1787401750073, "frame_id": 9084, "msg_type": "0x0A04", "data_len": 24, "target_count": 1, "targets": [{"id": 1, "x": 0.125, "y": -0.457, "z": 1.447, "doppler": 0}]}
+{"host_epoch_ms": 1787401750129, "frame_id": 9085, "msg_type": "0x0A0A", "data_len": 16, "presence_zones": [1, 0, 0, 0]}
+{"host_epoch_ms": 1787401750140, "frame_id": 9086, "msg_type": "0x0A04", "data_len": 24, "target_count": 1, "targets": [{"id": 1, "x": 0.125, "y": -0.457, "z": 1.447, "doppler": 0}]}
+{"host_epoch_ms": 1787401750202, "frame_id": 9087, "msg_type": "0x0A0A", "data_len": 16, "presence_zones": [1, 0, 0, 0]}
+{"host_epoch_ms": 1787401750230, "frame_id": 9088, "msg_type": "0x0A04", "data_len": 24, "target_count": 1, "targets": [{"id": 1, "x": 0.125, "y": -0.457, "z": 1.447, "doppler": 0}]}
+{"host_epoch_ms": 1787401750230, "frame_id": 9089, "msg_type": "0x0A0A", "data_len": 16, "presence_zones": [1, 0, 0, 0]}
+{"host_epoch_ms": 1787401750258, "frame_id": 9090, "msg_type": "0x0A04", "data_len": 24, "target_count": 1, "targets": [{"id": 1, "x": 0.125, "y": -0.457, "z": 1.447, "doppler": 0}]}
+{"host_epoch_ms": 1787401750265, "frame_id": 9091, "msg_type": "0x0A0A", "data_len": 16, "presence_zones": [1, 0, 0, 0]}
+{"host_epoch_ms": 1787401750272, "frame_id": 9092, "msg_type": "0x0A04", "data_len": 24, "target_count": 1, "targets": [{"id": 1, "x": 0.125, "y": -0.457, "z": 1.447, "doppler": 0}]}
+{"host_epoch_ms": 1787401750348, "frame_id": 9093, "msg_type": "0x0A0A", "data_len": 16, "presence_zones": [1, 0, 0, 0]}
+{"host_epoch_ms": 1787401750348, "frame_id": 9094, "msg_type": "0x0A04", "data_len": 24, "target_count": 1, "targets": [{"id": 1, "x": 0.125, "y": -0.457, "z": 1.447, "doppler": 0}]}
+{"host_epoch_ms": 1787401750366, "frame_id": 9095, "msg_type": "0x0A0A", "data_len": 16, "presence_zones": [1, 0, 0, 0]}
+{"host_epoch_ms": 1787401750366, "frame_id": 9096, "msg_type": "0x0A04", "data_len": 24, "target_count": 1, "targets": [{"id": 1, "x": 0.125, "y": -0.457, "z": 1.447, "doppler": 0}]}
+{"host_epoch_ms": 1787401750421, "frame_id": 9097, "msg_type": "0x0A0A", "data_len": 16, "presence_zones": [1, 0, 0, 0]}
+{"host_epoch_ms": 1787401750426, "frame_id": 9098, "msg_type": "0x0A04", "data_len": 24, "target_count": 1, "targets": [{"id": 1, "x": 0.125, "y": -0.457, "z": 1.447, "doppler": 0}]}
+{"host_epoch_ms": 1787401750478, "frame_id": 9099, "msg_type": "0x0A0A", "data_len": 16, "presence_zones": [1, 0, 0, 0]}
+{"host_epoch_ms": 1787401750478, "frame_id": 9100, "msg_type": "0x0A04", "data_len": 24, "target_count": 1, "targets": [{"id": 1, "x": 0.125, "y": -0.457, "z": 1.447, "doppler": 0}]}
+{"host_epoch_ms": 1787401750549, "frame_id": 9101, "msg_type": "0x0A0A", "data_len": 16, "presence_zones": [1, 0, 0, 0]}
+{"host_epoch_ms": 1787401750604, "frame_id": 9102, "msg_type": "0x0A04", "data_len": 24, "target_count": 1, "targets": [{"id": 1, "x": 0.125, "y": -0.457, "z": 1.447, "doppler": 0}]}
+{"host_epoch_ms": 1787401750604, "frame_id": 9103, "msg_type": "0x0A0A", "data_len": 16, "presence_zones": [1, 0, 0, 0]}
+{"host_epoch_ms": 1787401750633, "frame_id": 9104, "msg_type": "0x0A04", "data_len": 24, "target_count": 1, "targets": [{"id": 1, "x": 0.125, "y": -0.457, "z": 1.447, "doppler": 0}]}
+{"host_epoch_ms": 1787401750639, "frame_id": 9105, "msg_type": "0x0A0A", "data_len": 16, "presence_zones": [1, 0, 0, 0]}
+{"host_epoch_ms": 1787401750645, "frame_id": 9106, "msg_type": "0x0A04", "data_len": 24, "target_count": 1, "targets": [{"id": 1, "x": 0.125, "y": -0.457, "z": 1.447, "doppler": 0}]}
+{"host_epoch_ms": 1787401750678, "frame_id": 9107, "msg_type": "0x0A0A", "data_len": 16, "presence_zones": [1, 0, 0, 0]}
+{"host_epoch_ms": 1787401750711, "frame_id": 9108, "msg_type": "0x0A04", "data_len": 24, "target_count": 1, "targets": [{"id": 1, "x": 0.125, "y": -0.457, "z": 1.447, "doppler": 0}]}
+{"host_epoch_ms": 1787401750728, "frame_id": 9109, "msg_type": "0x0A0A", "data_len": 16, "presence_zones": [1, 0, 0, 0]}
+{"host_epoch_ms": 1787401750741, "frame_id": 9110, "msg_type": "0x0A04", "data_len": 24, "target_count": 1, "targets": [{"id": 1, "x": 0.125, "y": -0.457, "z": 1.447, "doppler": 0}]}
+{"host_epoch_ms": 1787401750769, "frame_id": 9111, "msg_type": "0x0A0A", "data_len": 16, "presence_zones": [1, 0, 0, 0]}
+{"host_epoch_ms": 1787401750780, "frame_id": 9112, "msg_type": "0x0A04", "data_len": 24, "target_count": 1, "targets": [{"id": 1, "x": 0.125, "y": -0.457, "z": 1.447, "doppler": 0}]}
+{"host_epoch_ms": 1787401750831, "frame_id": 9113, "msg_type": "0x0A0A", "data_len": 16, "presence_zones": [1, 0, 0, 0]}
+{"host_epoch_ms": 1787401750831, "frame_id": 9114, "msg_type": "0x0A04", "data_len": 24, "target_count": 1, "targets": [{"id": 1, "x": 0.125, "y": -0.457, "z": 1.447, "doppler": 0}]}
+{"host_epoch_ms": 1787401750899, "frame_id": 9115, "msg_type": "0x0A0A", "data_len": 16, "presence_zones": [1, 0, 0, 0]}
+{"host_epoch_ms": 1787401750933, "frame_id": 9116, "msg_type": "0x0A04", "data_len": 24, "target_count": 1, "targets": [{"id": 1, "x": 0.125, "y": -0.457, "z": 1.447, "doppler": 0}]}
+{"host_epoch_ms": 1787401750956, "frame_id": 9117, "msg_type": "0x0A0A", "data_len": 16, "presence_zones": [1, 0, 0, 0]}
+{"host_epoch_ms": 1787401750962, "frame_id": 9118, "msg_type": "0x0A04", "data_len": 24, "target_count": 1, "targets": [{"id": 1, "x": 0.125, "y": -0.457, "z": 1.447, "doppler": 0}]}
+{"host_epoch_ms": 1787401750974, "frame_id": 9119, "msg_type": "0x0A0A", "data_len": 16, "presence_zones": [1, 0, 0, 0]}
+{"host_epoch_ms": 1787401750979, "frame_id": 9120, "msg_type": "0x0A04", "data_len": 24, "target_count": 1, "targets": [{"id": 1, "x": 0.125, "y": -0.457, "z": 1.447, "doppler": 0}]}
+{"host_epoch_ms": 1787401751063, "frame_id": 9121, "msg_type": "0x0A0A", "data_len": 16, "presence_zones": [1, 0, 0, 0]}
+{"host_epoch_ms": 1787401751069, "frame_id": 9122, "msg_type": "0x0A04", "data_len": 24, "target_count": 1, "targets": [{"id": 1, "x": 0.125, "y": -0.457, "z": 1.447, "doppler": 0}]}
+{"host_epoch_ms": 1787401751075, "frame_id": 9123, "msg_type": "0x0A0A", "data_len": 16, "presence_zones": [1, 0, 0, 0]}
+{"host_epoch_ms": 1787401751086, "frame_id": 9124, "msg_type": "0x0A04", "data_len": 24, "target_count": 1, "targets": [{"id": 1, "x": 0.125, "y": -0.457, "z": 1.447, "doppler": 0}]}
+{"host_epoch_ms": 1787401751120, "frame_id": 9125, "msg_type": "0x0A0A", "data_len": 16, "presence_zones": [1, 0, 0, 0]}
+{"host_epoch_ms": 1787401751126, "frame_id": 9126, "msg_type": "0x0A04", "data_len": 24, "target_count": 1, "targets": [{"id": 1, "x": 0.125, "y": -0.457, "z": 1.447, "doppler": 0}]}
+{"host_epoch_ms": 1787401751192, "frame_id": 9127, "msg_type": "0x0A0A", "data_len": 16, "presence_zones": [1, 0, 0, 0]}
+{"host_epoch_ms": 1787401751215, "frame_id": 9128, "msg_type": "0x0A04", "data_len": 24, "target_count": 1, "targets": [{"id": 1, "x": 0.125, "y": -0.457, "z": 1.447, "doppler": 0}]}
+{"host_epoch_ms": 1787401751249, "frame_id": 9129, "msg_type": "0x0A0A", "data_len": 16, "presence_zones": [1, 0, 0, 0]}
+{"host_epoch_ms": 1787401751249, "frame_id": 9130, "msg_type": "0x0A04", "data_len": 4, "target_count": 0, "targets": []}
+{"host_epoch_ms": 1787401751278, "frame_id": 9131, "msg_type": "0x0A0A", "data_len": 16, "presence_zones": [1, 0, 0, 0]}
+{"host_epoch_ms": 1787401751279, "frame_id": 9132, "msg_type": "0x0A04", "data_len": 4, "target_count": 0, "targets": []}

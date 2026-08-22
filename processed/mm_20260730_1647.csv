@@ -1,0 +1,5 @@
+timestamp,zone,mm_presence,mm_target_count,mm_frame_count,mm_avg_velocity,mm_avg_distance
+1785397655000,zone_A,1,0,200,,
+1785397655000,zone_B,0,1,200,3.0,1.66
+1785397655000,zone_C,0,0,200,,
+1785397655000,zone_D,0,0,200,,

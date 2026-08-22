@@ -44,6 +44,14 @@ data/
 *.db
 *.sqlite3
 
+# mmWave Raw binary/JSONL dumps
+raw/*.bin
+raw/*.jsonl
+parsed/*.jsonl
+scratch/
+*.log
+.system_generated/
+
 # 학습된 모델·스케일러
 *.pkl
 *.joblib
