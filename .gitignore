@@ -1,0 +1,26 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Environments
+.env
+venv/
+env/
+.venv/
+
+# Scratch & Temporary Logs
+scratch/
+*.log
+.system_generated/
+
+# Raw/Parsed data dumps (Large binary logs - optional to ignore or keep sample)
+# raw/*.bin
+# raw/*.jsonl
+# parsed/*.jsonl
+
+# IDE & OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
