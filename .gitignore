@@ -1,0 +1,82 @@
+# ===== Python =====
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib60/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# 가상환경
+venv/
+env/
+ENV/
+.venv/
+
+# 테스트·커버리지
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# ===== 데이터 (중요) =====
+# 센서 데이터는 용량이 커서 git에 올리면 레포가 터진다
+# 공유는 구글드라이브로
+data/
+*.csv
+*.tsv
+*.parquet
+*.db
+*.sqlite3
+
+# 학습된 모델·스케일러
+*.pkl
+*.joblib
+*.h5
+models/
+
+# ===== ESP-IDF (희수) =====
+csi/build/
+sdkconfig.old
+managed_components/
+
+# ===== 환경변수·비밀 =====
+.env
+.env.*
+secrets.json
+*.key
+
+# ===== AI 도구 개인 설정 =====
+.claude/settings.local.json
+
+# ===== 에디터 =====
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# ===== OS =====
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Local Vercel project identity and generated public build
+.vercel/
+public/
+
+.vercel
