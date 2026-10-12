@@ -1,0 +1,5 @@
+# 이 파일을 sdkconfig.defaults.local 로 복사한 뒤 실제 값으로 바꾼다.
+# sdkconfig.defaults.local 은 .gitignore 대상이라 git에 올라가지 않는다.
+CONFIG_CSI_HOTSPOT_SSID="{WIFI_SSID}"
+CONFIG_CSI_HOTSPOT_PASSWORD="{WIFI_PASSWORD}"
+CONFIG_CSI_TCP_SERVER_IP="{TCP_SERVER_IP}"

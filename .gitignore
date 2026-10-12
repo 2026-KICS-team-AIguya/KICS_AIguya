@@ -79,4 +79,14 @@ desktop.ini
 .vercel/
 public/
 
-.vercel
+# ===== ESP-IDF 펌웨어 (csi/firmware) =====
+csi/firmware/*/build/
+csi/firmware/*/managed_components/
+csi/firmware/*/sdkconfig
+csi/firmware/*/sdkconfig.old
+csi/firmware/*/sdkconfig.defaults.custom_ip
+# Wi-Fi 비밀번호·서버 IP (로컬 전용)
+csi/firmware/*/sdkconfig.defaults.local
+
+# AI 인계 문서 (Wi-Fi 비밀번호 포함, 로컬 전용)
+CSI_Project_Context_Handover.md
