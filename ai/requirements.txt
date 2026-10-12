@@ -1,0 +1,7 @@
+# Python 3.13 기준. model_hgb_final.joblib이 이 버전으로 저장됐으므로
+# 추론 환경의 scikit-learn 버전을 반드시 맞출 것 (다르면 모델 로드 실패/경고 가능).
+scikit-learn==1.7.2
+joblib==1.5.2
+numpy==2.3.5
+pandas==2.3.3
+pytz  # build_labels.py (학습 파이프라인에서만 사용)
