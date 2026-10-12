@@ -1,0 +1,38 @@
+# Espressif IoT Development Framework (ESP-IDF) Minimal Configuration
+CONFIG_PARTITION_TABLE_OFFSET=0xa000
+CONFIG_ESP_CONSOLE_UART_CUSTOM=y
+CONFIG_ESP_CONSOLE_UART_BAUDRATE=460800
+CONFIG_ESP_TASK_WDT_TIMEOUT_S=30
+CONFIG_ESP_WIFI_DYNAMIC_RX_BUFFER_NUM=128
+CONFIG_ESP_WIFI_CSI_ENABLED=y
+CONFIG_ESP_WIFI_AMPDU_TX_ENABLED=n
+
+# [버그 수정 - 잦은 재연결] 기존 TCP 송신 버퍼(5760B = MSS 1440 x 4)가
+# 한 번에 묶어 보내는 CSI 배치(최대 CSI_TCP_LINE_MAX=8192B)보다 작아서,
+# 배치 하나를 보낼 때 커널 버퍼가 중간에 꽉 차 상대방 ACK를 기다려야
+# 하는 상황이 항상 발생했다. Wi-Fi 혼잡으로 그 ACK가 SO_SNDTIMEO
+# (app_main.c, 현재 1.5초) 안에 못 오면 "일부만 보낸 채 실패"가 되고,
+# 이는 TCP 스트림이 이미 오염된 상태라 무조건 즉시 재연결해야 한다
+# (app_main.c의 tcp_send_all 참고) - 그래서 재연결이 과도하게 잦았다.
+# 버퍼를 배치 최대 크기보다 크게(MSS 1440 x 8 = 11520B) 늘려서, 배치
+# 하나가 ACK를 기다리지 않고 한 번에 커널 버퍼로 다 들어가게 한다.
+CONFIG_LWIP_TCP_SND_BUF_DEFAULT=11520
+CONFIG_LWIP_TCP_WND_DEFAULT=11520
+
+# [핫스팟 테스트 보류 - 2026-09-21] 아이폰 핫스팟은 "설정 > 개인용
+# 핫스팟" 화면을 열어두지 않으면 새 기기(ESP32 등, Instant Hotspot을
+# 못 쓰는 비-애플 기기)가 아예 네트워크를 못 찾는 문제(reason=201)가
+# 있어 테스트가 불안정했다. 일단 ipTIME 공유기(채널 11)로 되돌리고,
+# 대신 힙 메모리 누수 여부를 진단하는 로그를 추가해서(app_main.c의
+# free_heap/min_free_heap 로그 참고) 같은 공유기에서 원인을 계속
+# 좁혀본다.
+#
+# Wi-Fi 비밀번호·수집 PC IP는 레포에 올리지 않는다.
+# 실제 값은 sdkconfig.defaults.local(.gitignore 대상)에 적으면
+# build_flash_rx.sh가 이 파일 뒤에 덮어써서 적용한다.
+# (sdkconfig.defaults.local.example 참고)
+CONFIG_CSI_HOTSPOT_SSID="{WIFI_SSID}"
+CONFIG_CSI_HOTSPOT_PASSWORD="{WIFI_PASSWORD}"
+CONFIG_CSI_EXPECTED_CHANNEL=11
+CONFIG_CSI_TCP_SERVER_IP="{TCP_SERVER_IP}"
+CONFIG_CSI_TCP_SERVER_PORT=5001

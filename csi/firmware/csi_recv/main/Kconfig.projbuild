@@ -1,0 +1,61 @@
+menu "CSI Hotspot Configuration"
+
+config CSI_HOTSPOT_SSID
+    string "Hotspot SSID"
+    default ""
+
+config CSI_HOTSPOT_PASSWORD
+    string "Hotspot password"
+    default ""
+
+config CSI_TCP_SERVER_IP
+    string "TCP server IP address"
+    default ""
+    help
+        IPv4 address of the Mac running the CSI TCP collector.
+
+config CSI_TCP_SERVER_PORT
+    int "TCP server port"
+    range 1 65535
+    default 5001
+    help
+        TCP port used by the CSI receiver to connect to the Mac.
+
+choice CSI_LINK_ID_CHOICE
+    prompt "CSI Link ID"
+    default CSI_LINK_ID_1
+    help
+        Select the Link ID for this RX board (link_1 to link_4 for 1:4 multi-sensor topology).
+
+    config CSI_LINK_ID_1
+        bool "link_1 (RX Board #1)"
+    config CSI_LINK_ID_2
+        bool "link_2 (RX Board #2)"
+    config CSI_LINK_ID_3
+        bool "link_3 (RX Board #3)"
+    config CSI_LINK_ID_4
+        bool "link_4 (RX Board #4)"
+    config CSI_LINK_ID_CUSTOM
+        bool "Custom Link ID"
+endchoice
+
+config CSI_LINK_ID
+    string "CSI link ID"
+    default "link_1" if CSI_LINK_ID_1
+    default "link_2" if CSI_LINK_ID_2
+    default "link_3" if CSI_LINK_ID_3
+    default "link_4" if CSI_LINK_ID_4
+    default "link_1"
+    help
+        Identifier for this receiver (e.g. link_1, link_2, link_3, link_4).
+
+config CSI_EXPECTED_CHANNEL
+    int "Expected Wi-Fi channel"
+    range 1 13
+    default 11
+    help
+        Expected 2.4 GHz Wi-Fi channel.
+        The receiver follows the access point channel and only checks
+        whether the actual channel matches this configured value.
+
+endmenu
