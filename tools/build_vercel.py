@@ -1,5 +1,8 @@
 """Build static public assets without uploading private sensor data or docs."""
+import json
+import os
 import shutil
+from urllib.parse import urlparse
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -18,7 +21,12 @@ def build():
         target = OUTPUT / source.relative_to(SOURCE)
         target.parent.mkdir(parents=True, exist_ok=True)
         shutil.copy2(source, target)
-    (OUTPUT / "runtime-config.js").write_text('window.DINING_API_BASE = window.location.origin + "/api";\n', encoding="utf-8")
+    congestion_api = os.getenv("CONGESTION_API_BASE", "").rstrip("/")
+    if congestion_api and (urlparse(congestion_api).scheme != "https" or not urlparse(congestion_api).hostname):
+        raise ValueError("배포용 CONGESTION_API_BASE는 접근 가능한 HTTPS 주소여야 합니다.")
+    config = 'window.DINING_API_BASE = window.location.origin + "/api";\n'
+    config += f'window.CONGESTION_API_BASE = {json.dumps(congestion_api)};\n'
+    (OUTPUT / "runtime-config.js").write_text(config, encoding="utf-8")
     print(f"Static Vercel output ready: {OUTPUT}")
 
 
