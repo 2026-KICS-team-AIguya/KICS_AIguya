@@ -19,13 +19,13 @@ FLOORS = {"sangnok": [1, 2, 3], "dormitory": [0], "business": [-2], "test": [0]}
 @dataclass(frozen=True)
 class SensorScope:
     location_id: str = "sangnok"
-    floor: int = 2
+    floor: int = 1
     link_id: str = "link_3"
     mode: str = "test"
 
     @classmethod
     def from_environment(cls):
-        scope = cls(os.getenv("CSI_LOCATION_ID", "sangnok"), int(os.getenv("CSI_FLOOR", "2")),
+        scope = cls(os.getenv("CSI_LOCATION_ID", "sangnok"), int(os.getenv("CSI_FLOOR", "1")),
                     os.getenv("CSI_LINK_ID", "link_3"), os.getenv("CSI_MODE", "test"))
         if scope.floor not in FLOORS.get(scope.location_id, []) or scope.mode not in ("test", "live"):
             raise ValueError("CSI_LOCATION_ID, CSI_FLOOR, CSI_MODE 설정을 확인하세요.")

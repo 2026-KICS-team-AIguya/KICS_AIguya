@@ -2,7 +2,7 @@
 
 const GRID_MS = 300000;
 const state = {
-  locationId: "sangnok", floorId: 2, angle: -35, flat: false,
+  locationId: "sangnok", floorId: 1, angle: -35, flat: false,
   motion: !window.matchMedia?.("(prefers-reduced-motion: reduce)").matches,
   autoRefresh: true, lastUpdated: new Date(), step: 0, refreshing: false,
   snapshots: {}, connection: {},
@@ -76,6 +76,7 @@ function renderDetail() {
   $("floor-message").textContent = reading.status === "calibrating" ? `혼잡도를 확인하고 있어요. 준비까지 약 2분 · ${reading.progress || "진행 중"}` :
     reading.status === "ok" ? (source === "예시 데이터" ? "화면 안내를 위한 예시입니다." : source === "기록 데이터" ? "기록된 측정 자료를 보여드립니다." : "주변 상황에 따라 실제 혼잡도와 차이가 있을 수 있습니다.") :
     reading.status === "skipped" ? "혼잡도를 다시 확인하고 있어요. 잠시만 기다려 주세요." :
+    reading.status === "waiting" ? "센서에서 새 측정 데이터를 기다리고 있어요." :
     reading.status === "stale" ? "새로운 측정 정보를 기다리고 있어요." : status.name;
 }
 
@@ -117,12 +118,13 @@ function renderUpdatedAt() {
   $("auto-button").textContent = `자동 갱신 ${state.autoRefresh ? "켜짐" : "꺼짐"}`;
   $("auto-button").setAttribute("aria-pressed", String(state.autoRefresh));
   $("refresh-button").disabled = state.refreshing;
-  $("connection-note").textContent = state.locationId === "sangnok" ? "혼잡도는 자동으로 갱신됩니다. 1·3층은 예시 데이터입니다." : "이 식당의 혼잡도는 제공 준비 중입니다.";
+  $("connection-note").textContent = state.locationId === "sangnok" ? "혼잡도는 자동으로 갱신됩니다. 2·3층은 예시 데이터입니다." : "이 식당의 혼잡도는 제공 준비 중입니다.";
 }
 
 function renderDashboard() {
   const parentId = document.activeElement?.parentElement?.id, floorTarget = document.activeElement?.dataset.floor;
   const hasFloors = activeFloors().length > 0;
+  $("floor-cards").hidden = !hasFloors;
   $("dining-content").hidden = !hasFloors;
   $("pending-content").hidden = hasFloors;
   $("building-title").textContent = activeLocation().name;
@@ -137,6 +139,7 @@ function selectFloor(id) {
   if (!activeFloors().some(floor => floor.id === id)) return;
   state.floorId = id;
   renderDashboard(); renderWeeklyMenus();
+  void refreshKiosk();
   transitionContent($("floor-plan")); transitionContent($("trend-chart"));
   $("announcement").textContent = `${id}층 ${activeFloor().name} 혼잡도 현황을 표시합니다.`;
 }

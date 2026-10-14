@@ -58,9 +58,7 @@ function floorReading(floor) {
   const location = activeLocation();
   const snapshot = state.snapshots[location.id];
   const reading = snapshot?.floors.find(item => item.floor === floor.id);
-  const scope = snapshot?.sensor_scope;
-  const connectedFloor = scope?.location_id === location.id && scope.floor === floor.id;
-  if (floor.demo && !connectedFloor) return { ...floor.demo, status: "ok", mode: "demo", history: floor.history };
+  if (floor.demo) return { ...floor.demo, status: "ok", mode: "demo", history: floor.history };
   if (state.connection[location.id] !== "connected") {
     return { status: state.connection[location.id] || "loading", level: null, input_kind: reading?.input_kind, history: [] };
   }

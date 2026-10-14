@@ -57,14 +57,14 @@ class ApiTests(unittest.TestCase):
         return self.client.get("/congestion").json()
 
     def test_floor_scope_and_no_occupancy(self):
-        self.assertEqual(self.snapshot()["floors"][1]["status"], "waiting")
+        self.assertEqual(self.snapshot()["floors"][0]["status"], "waiting")
         self.assertEqual(self.client.post("/ingest", json=self.reading()).status_code, 200)
         floors = self.snapshot()["floors"]
-        self.assertEqual(floors[1]["level"], LEVELS[1])
-        self.assertEqual(floors[1]["confidence"], .8)
-        self.assertEqual([floor["status"] for floor in floors if floor["floor"] != 2], ["unconnected", "unconnected"])
-        self.assertNotIn("seat_occupancy", floors[1])
-        self.assertNotIn("wait_minutes", floors[1])
+        self.assertEqual(floors[0]["level"], LEVELS[1])
+        self.assertEqual(floors[0]["confidence"], .8)
+        self.assertEqual([floor["status"] for floor in floors if floor["floor"] != 1], ["unconnected", "unconnected"])
+        self.assertNotIn("seat_occupancy", floors[0])
+        self.assertNotIn("wait_minutes", floors[0])
         self.assertEqual(self.client.get("/congestion?location_id=business").json()["floors"][0]["status"], "unconnected")
 
     def test_duplicate_does_not_call_ai_and_conflict_rejected(self):
@@ -83,9 +83,9 @@ class ApiTests(unittest.TestCase):
         self.now += 5000
         self.assertEqual(self.client.post("/ingest", json=self.reading(input_kind="sensor")).status_code, 409)
         self.assertEqual(self.predictor.calls, 1)
-        self.assertEqual(self.snapshot()["floors"][1]["input_kind"], "synthetic")
+        self.assertEqual(self.snapshot()["floors"][0]["input_kind"], "synthetic")
         self.now += 35000
-        self.assertEqual(self.snapshot()["floors"][1]["input_kind"], "synthetic")
+        self.assertEqual(self.snapshot()["floors"][0]["input_kind"], "synthetic")
 
     def test_live_mode_rejects_replay_and_accepts_sensor(self):
         from tools.replay_send import to_payload
@@ -102,14 +102,14 @@ class ApiTests(unittest.TestCase):
         self.now += 5000
         service = CongestionService(predictor=PredictorDouble(), clock=lambda: self.now)
         with TestClient(create_app(self.engine, service, menu_updates=False)) as client:
-            self.assertEqual(client.get("/congestion").json()["floors"][1]["status"], "waiting")
+            self.assertEqual(client.get("/congestion").json()["floors"][0]["status"], "waiting")
             self.assertEqual(client.post("/ingest", json=self.reading(input_kind="sensor")).status_code, 200)
-            floor = client.get("/congestion").json()["floors"][1]
+            floor = client.get("/congestion").json()["floors"][0]
             self.assertEqual(floor["input_kind"], "sensor")
             self.assertEqual(sum(point["samples"] for point in floor["history"]), 1)
 
     def test_schema_scope_and_nonfinite_validation(self):
-        invalid = [self.reading(identifier="link_1"), self.reading(floor=1), self.reading(source="mmwave"),
+        invalid = [self.reading(identifier="link_1"), self.reading(floor=2), self.reading(source="mmwave"),
                    self.reading(timestamp=self.now - 1), self.reading(timestamp=self.now + 20000),
                    self.reading(features={}), self.reading(features={**dict.fromkeys(FEATURES, 1), FEATURES[0]: "inf"}),
                    self.reading(features={**dict.fromkeys(FEATURES, 1), FEATURES[0]: True}), self.reading(interval_ms=300000)]
@@ -132,22 +132,22 @@ class ApiTests(unittest.TestCase):
              patch("server.main.menu_service.refresh", return_value={"locations": {}}), \
              TestClient(create_app(self.engine, service, menu_updates=False)) as client:
             self.assertFalse(client.get("/").json()["ai_ready"])
-            self.assertEqual(client.get("/congestion").json()["floors"][1]["status"], "unavailable")
+            self.assertEqual(client.get("/congestion").json()["floors"][0]["status"], "unavailable")
             self.assertEqual(client.post("/ingest", json=self.reading()).status_code, 503)
             self.assertEqual(client.get("/menus").status_code, 200)
 
     def test_calibration_quality_and_stale_status(self):
         self.predictor.result = {"status": "calibrating", "progress": "1/24"}
         self.client.post("/ingest", json=self.reading())
-        self.assertEqual(self.snapshot()["floors"][1]["progress"], "1/24")
+        self.assertEqual(self.snapshot()["floors"][0]["progress"], "1/24")
         self.now += 5000
         self.predictor.result = {"status": "skipped", "reason": "missing"}
         self.client.post("/ingest", json=self.reading())
-        floor = self.snapshot()["floors"][1]
+        floor = self.snapshot()["floors"][0]
         self.assertEqual(floor["status"], "skipped")
         self.assertIsNone(floor["level"])
         self.now += 35000
-        self.assertEqual(self.snapshot()["floors"][1]["status"], "stale")
+        self.assertEqual(self.snapshot()["floors"][0]["status"], "stale")
 
     def test_empty_packets_do_not_keep_sensor_online(self):
         self.client.post("/ingest", json=self.reading())
@@ -155,7 +155,7 @@ class ApiTests(unittest.TestCase):
         features = {**dict.fromkeys(FEATURES, 1), "csi_packet_count": 0}
         self.client.post("/ingest", json=self.reading(features=features))
         self.assertEqual(self.predictor.calls, 1)
-        self.assertEqual(self.snapshot()["floors"][1]["status"], "stale")
+        self.assertEqual(self.snapshot()["floors"][0]["status"], "stale")
 
     def test_kiosk_requires_complete_windows_and_handles_zero(self):
         self.assertEqual(self.snapshot()["kiosk"]["status"], "waiting")
@@ -198,7 +198,7 @@ class ApiTests(unittest.TestCase):
             response = self.client.post("/ingest", json=payload)
             self.assertEqual(response.status_code, 200)
             self.assertEqual(response.json()["inference"]["status"], "calibrating" if index < 23 else "ok")
-        snapshot = self.snapshot()["floors"][1]
+        snapshot = self.snapshot()["floors"][0]
         self.assertIn(snapshot["level"], LEVELS)
         self.assertEqual(len(snapshot["history"]), 1)
         self.assertEqual(snapshot["history"][0]["samples"], 1)
@@ -224,9 +224,9 @@ class ApiTests(unittest.TestCase):
             frames = list(assembler.complete(self.now))
             self.assertEqual(len(frames), 1)
             self.assertTrue(all(frames[0]["features"][name] is not None for name in FEATURES))
-            result = post_frame(self.client, "http://testserver", frames[0], "sangnok", 2)
+            result = post_frame(self.client, "http://testserver", frames[0], "sangnok", 1)
             self.assertEqual(result["inference"]["status"], "calibrating" if window_index < 23 else "ok")
-        self.assertEqual(self.snapshot()["floors"][1]["status"], "ok")
+        self.assertEqual(self.snapshot()["floors"][0]["status"], "ok")
 
 
 class FeatureTests(unittest.TestCase):

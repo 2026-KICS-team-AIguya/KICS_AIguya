@@ -42,7 +42,7 @@ def main():
     source.add_argument("--synthetic", action="store_true")
     parser.add_argument("--server", default="http://127.0.0.1:8000")
     parser.add_argument("--location", default="sangnok")
-    parser.add_argument("--floor", type=int, default=2)
+    parser.add_argument("--floor", type=int, default=1)
     parser.add_argument("--link", default="link_3")
     parser.add_argument("--count", type=int, default=30)
     parser.add_argument("--continuous", action="store_true", help="Keep synthetic test input running until Ctrl+C")

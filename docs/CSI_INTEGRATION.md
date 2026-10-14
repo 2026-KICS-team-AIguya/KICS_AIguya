@@ -1,77 +1,66 @@
 # CSI → AI → 층별 대시보드
 
-CSI 송신기 1대와 수신기 1대(`link_3`)를 사용한다. 실제 수집 장소는 테스트 공간이고, 결과는 상록원 2층에 연결한다. 화면에는 개발용 테스트 문구 없이 혼잡도·측정 상태를 표시한다. 상록원 1·3층은 `예시 데이터`로 구분한다. 키오스크는 실데이터 확보 전이며 수신 API만 준비했다.
+CSI 송신기 1대와 수신기 1대(`link_3`)를 사용한다. 테스트 공간의 실제 측정 결과를 상록원 1층에 연결하고, 2·3층 혼잡도는 예시 데이터로 구분한다. 키오스크 방문 도우미도 1층에서만 제공하고, 2·3층 키오스크는 준비 중으로 표시한다.
 
-희수 컴퓨터에서 센서 수집·특징값 전송·백엔드를 실행하고, 송주 컴퓨터에서는 브라우저만 사용한다. 두 컴퓨터는 같은 공유기에 연결한다.
+## 준비
 
-```text
-ESP32 RX → 희수 PC TCP 수집기(:5001) → raw CSV → stream_csi
-                                                    ↓
-송주 PC 브라우저 ← /dashboard/ · /congestion ← 희수 PC FastAPI(:8000) → AI
-```
+모델은 Git에 포함하지 않는다. 백엔드 컴퓨터의 `data/ai/model_hgb_final.joblib`에 새 모델을 배치한다. 카카오톡 파일명이 `model_hgb_final (1).joblib`이면 실행 경로에서는 `(1)` 없는 이름으로 둔다.
 
-## 준비와 실행
-
-모델은 Git에 포함하지 않는다. `data/ai/model_hgb_final.joblib`에 배치한다.
-
-희수 컴퓨터의 프로젝트 루트에서 준비한다. 이 컴퓨터에도 모델 파일이 필요하다. 아래 명령은 Windows PowerShell 기준이며, 기존 가상환경 이름이 다르면 `venv` 경로를 맞춘다.
+백엔드 컴퓨터의 프로젝트 루트에서:
 
 ```powershell
 .\venv\Scripts\python.exe -m pip install -r server/requirements.txt -r ai/requirements.txt -r pipeline/requirements.txt
 ```
 
-가상환경이 없다면 Python 3.12에서 `python -m venv venv`로 먼저 만든다.
+가상환경이 없다면 Python 3.12에서 `python -m venv venv`로 먼저 만든다. 희수 수집 컴퓨터는 `pipeline/requirements.txt`의 numpy와 requests가 필요하며 AI 모델은 백엔드 컴퓨터에만 둔다.
 
-## 공유기 안에서 실행
+## 두 컴퓨터에서 실행
 
-희수 컴퓨터에서 터미널 3개를 열고 각각 프로젝트 루트에서 실행한다. 기존 재생 전송기는 Ctrl+C로 종료한다. 인공 입력을 사용한 서버도 종료한 뒤 다시 실행해 기준값을 초기화한다.
+두 컴퓨터를 같은 공유기에 연결한다. 희수 컴퓨터는 센서 수집·특징값 계산·전송을, 송주 컴퓨터는 백엔드·AI·웹을 실행한다. 최신 수집기에는 `/ingest` 전송이 포함되어 터미널은 각각 하나씩 연다.
 
-**터미널 1 — 백엔드와 웹:**
+```text
+ESP32 RX → 희수 PC 수집기(:5001) → 5초 특징값 11개
+                                      ↓ HTTP /ingest
+송주 PC 브라우저 ← /dashboard/ ← 송주 PC FastAPI(:8000) → AI
+```
+
+**송주 컴퓨터 — 백엔드:**
 
 ```powershell
 $env:CSI_LOCATION_ID = "sangnok"
-$env:CSI_FLOOR = "2"
+$env:CSI_FLOOR = "1"
 $env:CSI_LINK_ID = "link_3"
 $env:CSI_MODE = "test"
 .\venv\Scripts\python.exe -m uvicorn server.main:app --host 0.0.0.0 --port 8000 --workers 1
 ```
 
-**터미널 2 — 실제 수집기:**
+`ipconfig`로 현재 공유기에 연결된 Wi-Fi/이더넷의 IPv4를 확인한다. 아래는 송주 컴퓨터 IP가 `192.168.0.10`인 예시다.
 
-```powershell
-.\venv\Scripts\python.exe csi/logger/tcp_receiver.py --links link_3 --expected-pps 36
+**희수 컴퓨터 — 가상환경을 활성화하고 수집·전송:**
+
+```text
+python csi/logger/tcp_receiver.py --links link_3 --expected-pps 36 --ingest-url http://192.168.0.10:8000/ingest
 ```
 
-**터미널 3 — 실제 패킷에서 특징값을 계산해 전송:**
+예시 IP를 실제 송주 컴퓨터 IP로 바꾼다. ESP32 수신기의 TCP 서버 주소는 계속 희수 컴퓨터 IP, 포트는 5001이다. 설정 방법은 `csi/firmware/README.md`를 따른다. 기본 4개 링크 설정을 쓰지 않고 `--links link_3`를 지정한다. TX PPS와 `--expected-pps 36`을 맞춘다.
 
-```powershell
-.\venv\Scripts\python.exe -m pipeline.stream_csi --server http://127.0.0.1:8000
-```
+송주 컴퓨터 브라우저: `http://127.0.0.1:8000/dashboard/`. 다른 기기는 `http://송주컴퓨터IP:8000/dashboard/`로 접속한다. 웹과 API가 같은 주소를 사용하므로 `web/runtime-config.js` 변경은 필요 없다. `0.0.0.0`은 서버 수신 설정이며 브라우저 주소가 아니다. 종료는 각 터미널에서 Ctrl+C.
 
-`stream_csi`는 `data/csi/raw/`에서 최근 30초 내 기록된 `csi_*.csv`를 기다렸다가 한 파일에 연결한다. 보관된 과거 파일은 자동 재생하지 않는다. 연결 시점 이후 추가된 완전한 CSV 행만 읽으며, 5초 구간이 끝난 후 2초를 기다려 전송한다. 수집기를 다시 실행해 파일이 바뀌면 `stream_csi`와 백엔드도 다시 실행해 새 기준값을 수집한다. 사용자 지정 파일이 필요하면 `--raw-file "실제 Raw Output 경로.csv"`를 사용한다.
+한 컴퓨터에서 모두 실행하려면 수집기의 `--ingest-url`만 `http://127.0.0.1:8000/ingest`로 바꾼다. 서버 컴퓨터가 macOS라면 Python 경로를 `./venv/bin/python`으로 바꾸고 `export CSI_LOCATION_ID=sangnok CSI_FLOOR=1 CSI_LINK_ID=link_3 CSI_MODE=test`로 설정한다.
 
-수집기의 출력 경로와 연결된 파일이 같은지 확인한다. ESP32 수신기의 서버 주소는 **희수 컴퓨터의 공유기 IPv4 주소**, 포트는 **5001**로 설정한다. 설정 방법은 `csi/firmware/README.md`를 따른다. 기존 4개 수신기 설정을 사용하지 않고 `--links link_3`를 유지한다. TX 설정과 `--expected-pps 36`도 일치해야 한다.
+기존 `pipeline.stream_csi`를 수집기와 함께 켜면 중복 전송된다. 이전 연결 처리를 사용하는 경우에는 수집기에 `--no-ingest`를 지정하고 `python -m pipeline.stream_csi --server http://송주컴퓨터IP:8000 --floor 1`로 실행한다. 이 연결 처리는 현재 기록 중인 raw CSV만 자동으로 선택하며 과거 파일을 재생하지 않는다.
 
-희수 컴퓨터에서 `ipconfig`를 실행하고 현재 공유기에 연결된 Wi-Fi/이더넷의 IPv4 주소를 확인한다. 예를 들어 `192.168.0.23`이라면:
+백엔드에 접속되지 않으면 현재 IP·공유기의 장치 간 통신·8000 포트 접근을 확인한다. 센서가 붙지 않으면 수신기에서 바라보는 희수 컴퓨터 IP와 5001 포트를 확인한다.
 
-- 희수 컴퓨터 자체 확인: `http://127.0.0.1:8000/dashboard/`
-- 송주 컴퓨터 브라우저: `http://192.168.0.23:8000/dashboard/`
+## 기준값과 실행 설정
 
-예시 IP는 실제 희수 컴퓨터 IP로 바꾼다. `0.0.0.0`은 서버의 수신 설정이고 브라우저 접속 주소가 아니다. 송주 컴퓨터에서는 서버·Python·센서 코드를 실행할 필요가 없다. 화면과 API가 같은 희수 컴퓨터 주소를 사용하므로 `web/runtime-config.js` 변경도 필요 없다. 종료는 각 터미널에서 Ctrl+C.
+센서를 먼저 켜서 안정화하고, 빈 방 또는 0~4명 상태에서 전송을 시작한다. 첫 24개 유효 구간(약 2분)이 기준값이다. 장소·가구 배치가 바뀌거나 모델을 교체하면 백엔드를 재시작하고 기준값을 다시 수집한다.
 
-희수 컴퓨터가 macOS라면 설치·실행 명령의 `.\venv\Scripts\python.exe`를 `./venv/bin/python`으로 바꾸고, 환경변수는 `export CSI_LOCATION_ID=sangnok CSI_FLOOR=2 CSI_LINK_ID=link_3 CSI_MODE=test`로 설정한다. IPv4 주소는 시스템 설정의 네트워크 정보에서 확인한다.
+AI 기준값은 프로세스 메모리에 있으므로 worker는 1개로 실행한다. 모델이 없거나 로드에 실패해도 메뉴와 상태 조회는 제공하며 CSI 수신은 503으로 응답한다. 학습·추론은 `config.fit_baseline` / `apply_baseline`을 사용한다.
 
-희수 컴퓨터에서는 열리고 다른 컴퓨터에서는 열리지 않으면 공유기의 장치 간 통신 제한과 Windows의 해당 Python/8000 포트 허용 여부를 확인한다. 센서가 붙지 않으면 수신기에서 바라보는 희수 컴퓨터 IP와 5001 포트도 확인한다.
+기본값은 `CSI_LOCATION_ID=sangnok`, `CSI_FLOOR=1`, `CSI_LINK_ID=link_3`, `CSI_MODE=test`다. 기존 터미널에 `CSI_FLOOR=2`가 남았다면 반드시 1로 변경한다. `test`는 테스트 공간을 상록원에 매핑하는 내부 설정이며 화면 명칭이 아니다. 실제 상록원 현장 운영에서는 `CSI_MODE=live`로 바꾼다. 이 모드는 재생·인공 입력을 거절한다.
 
-AI 기준값은 프로세스 메모리에 있다. worker는 1개로 실행하며, 재시작하면 기준값을 다시 수집한다. 모델이 없거나 로드에 실패하면 메뉴와 상태 조회는 계속 제공하고 CSI 수신은 503으로 응답한다.
-
-**기준값 수집 조건:** 센서를 먼저 켜서 신호를 안정화하고, 빈 방 또는 0~4명 상태에서 `stream_csi` 전송을 시작한다. 첫 24개 유효 구간(약 2분)이 기준값이므로 사람이 많은 상태에서 시작하면 그 상태가 기준으로 잡힌다. 장소·가구 배치가 바뀌면 백엔드를 재시작하고 같은 조건으로 다시 수집한다.
-
-2026-10-14에 팀 `develop`의 정규화 수정(`929aa2b`)과 새 모델을 함께 반영했다. 학습과 추론 모두 `config.fit_baseline` / `apply_baseline`을 사용한다. 모델 교체 후에는 파일명만 바꾸는 것으로 끝나지 않고 백엔드를 재시작해야 한다. 카카오톡에서 받은 `model_hgb_final (1).joblib`은 실행 경로에서 `data/ai/model_hgb_final.joblib`이라는 이름으로 둔다. 희수 컴퓨터에도 동일한 새 모델을 별도로 전달한다.
-
-기본값: `CSI_LOCATION_ID=sangnok`, `CSI_FLOOR=2`, `CSI_LINK_ID=link_3`, `CSI_MODE=test`. `test`는 실제 수집 장소를 상록원 2층에 매핑하는 내부 설정이며 화면의 명칭이 아니다. 실제 상록원 현장 운영에서는 `CSI_MODE=live`로 바꾼다. 이 모드는 재생·인공 입력을 거절한다.
-
-DB는 `server/congestion.db`를 기본으로 사용한다. `KICS_DATABASE_URL`로 별도 SQLite 경로를 지정할 수 있다. 기존 `readings`·`results` 테이블은 보존하고, 새 데이터는 `csi_measurements`·`kiosk_samples`에 저장한다. 예전 루트 `congestion.db`의 데이터는 자동으로 이동하지 않는다.
+DB는 `server/congestion.db`를 사용하며 `KICS_DATABASE_URL`로 별도 경로를 지정할 수 있다. 기존 `readings`·`results` 테이블은 보존하고 새 데이터는 `csi_measurements`·`kiosk_samples`에 저장한다. 이전 2층 기록을 1층 기록으로 덮어쓰지 않는다.
 
 ## 특징값 계산
 
@@ -111,7 +100,7 @@ python -m pipeline.replay --synthetic --continuous
   "input_kind": "sensor",
   "identifier": "link_3",
   "location_id": "sangnok",
-  "floor": 2,
+  "floor": 1,
   "timestamp": 1791817200000,
   "features": {"csi_rssi_mean": -50, "...": "FEATURES의 11개 특징값"}
 }
@@ -142,7 +131,7 @@ python -m pipeline.replay --synthetic --continuous
 
 공유기 안에서 확인할 때는 위의 희수 컴퓨터 `/dashboard/` 주소로 접속한다. Vercel 재배포나 외부 서버는 필요 없다.
 
-현재 Vercel 배포는 정적 화면과 메뉴 API다. 센서·AI 백엔드는 지속 실행하는 별도 프로세스로 운영한다. 나중에 외부에서도 접속하려면 브라우저에서 접근 가능한 HTTPS 백엔드를 마련하고, 배포 빌드 환경변수 `CONGESTION_API_BASE`에 그 주소를 넣는다. 공유기의 내부 HTTP IP를 Vercel에 넣는 방식은 사용하지 않는다. 주소가 없으면 2층은 혼잡도 준비 중, 1·3층은 예시 데이터로 표시한다.
+현재 Vercel 배포는 정적 화면과 메뉴 API다. 센서·AI 백엔드는 지속 실행하는 별도 프로세스로 운영한다. 나중에 외부에서도 접속하려면 브라우저에서 접근 가능한 HTTPS 백엔드를 마련하고, 배포 빌드 환경변수 `CONGESTION_API_BASE`에 그 주소를 넣는다. 공유기의 내부 HTTP IP를 Vercel에 넣는 방식은 사용하지 않는다. 주소가 없으면 1층은 혼잡도 준비 중, 2·3층은 예시 데이터로 표시한다.
 
 ## 검증
 

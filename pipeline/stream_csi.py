@@ -83,7 +83,7 @@ def main():
     source.add_argument("--raw-dir", type=Path, default=Path(__file__).resolve().parents[1] / "data/csi/raw")
     parser.add_argument("--server", default="http://127.0.0.1:8000")
     parser.add_argument("--location", default="sangnok")
-    parser.add_argument("--floor", type=int, default=2)
+    parser.add_argument("--floor", type=int, default=1)
     parser.add_argument("--link", default="link_3")
     parser.add_argument("--expected-pps", type=float, default=36)
     args = parser.parse_args()

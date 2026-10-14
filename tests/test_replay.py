@@ -40,7 +40,7 @@ class ReplayTests(unittest.TestCase):
              patch.object(replay.time, "sleep"), contextlib.redirect_stdout(output):
             replay.main()
         self.assertEqual(post.call_count, 2)
-        self.assertEqual(post.call_args.args[-1], 2)
+        self.assertEqual(post.call_args.args[-1], 1)
         self.assertEqual(post.call_args.kwargs["input_kind"], "synthetic")
         self.assertIn("Replay finished", output.getvalue())
 
