@@ -14,6 +14,7 @@ D-plex·기숙사 메뉴 이미지 응답을 배포 주소에서 확인했습니
 
 - `vercel.json`: 정적 출력 폴더 `public`, Python API 함수 설정
 - `tools/build_vercel.py`: `web/`의 화면·이미지·글꼴을 정적 출력으로 복사
+- `api/kiosk-analysis.py`: DB·AI 모델 없이 동작하는 가상 키오스크 분석 API (`server/kiosk_analysis.py` 공용)
 - `api/menus.py`: `/api/menus`에서 공식 메뉴 조회
 - `api/menu-image.py`: 공식 메뉴 이미지 전용 전달 경로
 - `server/menu_cloud.py`: 파일 쓰기 없이 메뉴를 수집하고 메모리에 캐시
