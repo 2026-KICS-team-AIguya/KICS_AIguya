@@ -1,5 +1,5 @@
-from sqlalchemy import Column, Integer, String, Float, JSON, Index
-from database import Base
+from sqlalchemy import Column, Integer, String, Float, JSON, Index, UniqueConstraint
+from server.database import Base
 
 
 class Reading(Base):
@@ -11,10 +11,10 @@ class Reading(Base):
     # 규격: epoch milliseconds 정수, 5초 grid (window 시작 시각)
     timestamp = Column(Integer, nullable=False, index=True)
 
-    # "csi" | "mmwave" | "external"
+    # 기존 수신 테이블은 보존한다. 새 수신은 CsiMeasurement/KioskSample 사용.
     source = Column(String, nullable=False)
 
-    # CSI는 link_1~4, mmWave는 zone_A~D, external은 없음
+    # 기존 센서 식별자
     identifier = Column(String, nullable=True)
 
     # 특징값 전체를 딕셔너리로 저장
@@ -23,7 +23,7 @@ class Reading(Base):
 
 
 class Result(Base):
-    """5분 슬롯마다 계산한 통합 결과."""
+    """기존 임시 계산 이력. 새 API에서는 조회하거나 갱신하지 않는다."""
     __tablename__ = "results"
 
     id = Column(Integer, primary_key=True, index=True)
@@ -38,3 +38,31 @@ class Result(Base):
 
 
 Index("ix_readings_ts_source", Reading.timestamp, Reading.source)
+
+
+class CsiMeasurement(Base):
+    __tablename__ = "csi_measurements"
+    __table_args__ = (UniqueConstraint("location_id", "floor", "link_id", "timestamp"),)
+
+    id = Column(Integer, primary_key=True)
+    location_id = Column(String, nullable=False, index=True)
+    floor = Column(Integer, nullable=False)
+    link_id = Column(String, nullable=False)
+    timestamp = Column(Integer, nullable=False, index=True)
+    received_at = Column(Integer, nullable=False)
+    session_id = Column(String, nullable=False)
+    features = Column(JSON, nullable=False)
+    inference = Column(JSON, nullable=False)
+
+
+class KioskSample(Base):
+    """한 키오스크가 5초 구간에 새로 발권한 건수. 0건 구간도 전송한다."""
+    __tablename__ = "kiosk_samples"
+    __table_args__ = (UniqueConstraint("location_id", "kiosk_id", "timestamp"),)
+
+    id = Column(Integer, primary_key=True)
+    location_id = Column(String, nullable=False, index=True)
+    kiosk_id = Column(String, nullable=False)
+    timestamp = Column(Integer, nullable=False, index=True)
+    received_at = Column(Integer, nullable=False)
+    count = Column(Integer, nullable=False)

@@ -554,7 +554,7 @@ main { max-width: 1360px; margin: auto; padding: 0 42px 28px; }
 .status-badge.free { color: var(--free); }
 .status-badge.moderate { color: var(--moderate); }
 .status-badge.busy { color: var(--busy); }
-.demo-notice {
+.data-notice {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -563,7 +563,7 @@ main { max-width: 1360px; margin: auto; padding: 0 42px 28px; }
   color: #87694b;
   margin-top: 9px;
 }
-.demo-notice button {
+.data-notice button {
   border: 0;
   background: transparent;
   min-height: 34px;
@@ -664,7 +664,7 @@ main { max-width: 1360px; margin: auto; padding: 0 42px 28px; }
 .legend .free { background: #9fae79; }
 .legend .moderate { background: #c9af62; }
 .legend .busy { background: #c28a6b; }
-.zone-detail {
+.floor-detail {
   position: relative;
   background: var(--paper);
   border: 1px solid #ceb492;
@@ -673,7 +673,7 @@ main { max-width: 1360px; margin: auto; padding: 0 42px 28px; }
   margin-bottom: 12px;
   box-shadow: 5px 6px 0 #9c784518;
 }
-.zone-detail:after {
+.floor-detail:after {
   content: "";
   position: absolute;
   height: 11px;
@@ -699,14 +699,14 @@ main { max-width: 1360px; margin: auto; padding: 0 42px 28px; }
   gap: 10px;
 }
 .detail-heading h3 { font-size: 24px; color: #745236; }
-#zone-subtitle { margin-top: 5px; font-size: 11px; color: #896749; }
-.zone-metric {
+#floor-subtitle { margin-top: 5px; font-size: 11px; color: #896749; }
+.measurement-metric {
   display: flex;
   align-items: baseline;
   gap: 13px;
   margin-top: 22px;
 }
-.zone-metric strong {
+.measurement-metric strong {
   font-family: "DM Serif", Georgia, serif;
   font-size: 61px;
   line-height: 1.15;
@@ -715,7 +715,7 @@ main { max-width: 1360px; margin: auto; padding: 0 42px 28px; }
   color: var(--red);
   font-variant-numeric: tabular-nums;
 }
-.zone-metric span { font-size: 11px; color: #896947; }
+.measurement-metric span { font-size: 11px; color: #896947; }
 .detail-progress {
   height: 4px;
   background: #eee2ca;
@@ -730,8 +730,8 @@ main { max-width: 1360px; margin: auto; padding: 0 42px 28px; }
 }
 .detail-progress span.moderate { background: #c09b4e; }
 .detail-progress span.busy { background: #b77a58; }
-.zone-facts { margin: 0; }
-.zone-facts>div {
+.floor-facts { margin: 0; }
+.floor-facts>div {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -740,8 +740,8 @@ main { max-width: 1360px; margin: auto; padding: 0 42px 28px; }
   border-top: 1px dashed #d5bfa0;
   font-size: 11px;
 }
-.zone-facts dt { color: #876646; }
-.zone-facts dd { margin: 0; color: #775436; }
+.floor-facts dt { color: #876646; }
+.floor-facts dd { margin: 0; color: #775436; }
 .detail-note { font-size: 11px; color: #886e51; margin-top: 14px; }
 .receipt-bottom {
   display: flex;
@@ -997,7 +997,7 @@ main { max-width: 1360px; margin: auto; padding: 0 42px 28px; }
   .campus-stage { height: 390px; }
   .space-layout { grid-template-columns: minmax(0,1fr) 275px; gap: 25px; }
   .floor-card { padding: 21px; }
-  .zone-detail { padding: 22px; }
+  .floor-detail { padding: 22px; }
   .map-panel { padding: 20px 18px 16px; }
   .room-zone-buttons { gap: 6px; }
   .zone-button { padding: 7px; }
@@ -1037,9 +1037,9 @@ main { max-width: 1360px; margin: auto; padding: 0 42px 28px; }
   .floor-card { padding: 19px 18px; }
   .floor-metric strong { font-size: 34px; }
   .floor-card-footer { font-size: 11px; }
-  .zone-detail { padding: 20px; }
-  .zone-metric strong { font-size: 54px; }
-  .zone-facts>div { font-size: 10px; }
+  .floor-detail { padding: 20px; }
+  .measurement-metric strong { font-size: 54px; }
+  .floor-facts>div { font-size: 10px; }
   .map-footer { font-size: 9px; }
   .legend { gap: 9px; }
 }
@@ -1152,9 +1152,9 @@ main { max-width: 1360px; margin: auto; padding: 0 42px 28px; }
   }
   .floor-card-footer strong { font-size: 12px; }
   .status-badge { font-size: 10px; gap: 4px; }
-  .demo-notice { font-size: 10px; align-items: start; gap: 10px; }
-  .demo-notice p { padding-top: 7px; }
-  .demo-notice button { font-size: 10px; }
+  .data-notice { font-size: 10px; align-items: start; gap: 10px; }
+  .data-notice p { padding-top: 7px; }
+  .data-notice button { font-size: 10px; }
   .space-heading { margin-top: 24px; gap: 10px; }
   .space-heading h3 { font-size: 20px; }
   .floor-tabs button { font-size: 11px; padding: 5px 11px; }
@@ -1169,7 +1169,7 @@ main { max-width: 1360px; margin: auto; padding: 0 42px 28px; }
   .zone-button>strong { font-size: 24px; }
   .zone-button>small { font-size: 10px; }
   .map-footer { font-size: 9px; gap: 6px; }
-  .zone-detail {
+  .floor-detail {
     padding: 21px 24px;
     display: grid;
     grid-template-columns: 1fr 128px;
@@ -1178,8 +1178,8 @@ main { max-width: 1360px; margin: auto; padding: 0 42px 28px; }
   .receipt-heading { grid-column: 1/3; margin-bottom: 15px; padding-bottom: 13px; }
   .detail-heading { grid-column: 1; }
   .detail-heading h3 { font-size: 22px; }
-  #zone-subtitle { grid-column: 1; font-size: 10px; }
-  .zone-metric {
+  #floor-subtitle { grid-column: 1; font-size: 10px; }
+  .measurement-metric {
     grid-column: 2;
     grid-row: 2/5;
     margin-top: 0;
@@ -1188,11 +1188,11 @@ main { max-width: 1360px; margin: auto; padding: 0 42px 28px; }
     align-items: end;
     justify-content: center;
   }
-  .zone-metric strong { font-size: 50px; }
-  .zone-metric span { font-size: 10px; }
+  .measurement-metric strong { font-size: 50px; }
+  .measurement-metric span { font-size: 10px; }
   .detail-progress { grid-column: 1; margin: 11px 0 3px; }
-  .zone-facts { grid-column: 1/3; margin-top: 14px; }
-  .zone-facts>div { padding: 10px 0; font-size: 11px; }
+  .floor-facts { grid-column: 1/3; margin-top: 14px; }
+  .floor-facts>div { padding: 10px 0; font-size: 11px; }
   .detail-note { grid-column: 1/3; font-size: 10px; margin-top: 11px; }
   .detail-note br { display: none; }
   .receipt-bottom { grid-column: 1/3; margin-top: 19px; padding-top: 12px; }
@@ -1289,8 +1289,8 @@ main { max-width: 1360px; margin: auto; padding: 0 42px 28px; }
   .map-panel { padding: 16px 12px 14px; }
   .map-footer { font-size: 8px; }
   .legend { gap: 8px; }
-  .zone-detail { padding: 20px; column-gap: 12px; grid-template-columns: 1fr 106px; }
-  .zone-metric strong { font-size: 46px; }
+  .floor-detail { padding: 20px; column-gap: 12px; grid-template-columns: 1fr 106px; }
+  .measurement-metric strong { font-size: 46px; }
   .facilities-section { padding: 21px 16px; }
   .facilities-section .section-title h2 { font-size: 17px; }
   .source-link { font-size: 9px; }
@@ -1298,7 +1298,7 @@ main { max-width: 1360px; margin: auto; padding: 0 42px 28px; }
 }
 
 @media(pointer: coarse) {
-  .map-controls button, .view-switch button, .floor-tabs button, .icon-button, .demo-notice button, .source-link, .motion-button {
+  .map-controls button, .view-switch button, .floor-tabs button, .icon-button, .data-notice button, .source-link, .motion-button {
     min-height: 44px;
   }
   .map-controls button { min-width: 36px; }
@@ -1582,3 +1582,11 @@ main { max-width: 1360px; margin: auto; padding: 0 42px 28px; }
   .ticket-comparison > p { font-size: 10px; }
 }
 
+
+/* 층별 등급은 좌석 점유율과 구분한다. */
+.floor-grade strong { font-family: var(--body-font); font-size: clamp(19px, 2.5vw, 29px); line-height: 1.5; letter-spacing: -.04em; }
+.measurement-metric strong { font-family: var(--body-font); font-size: clamp(30px, 4vw, 44px); }
+.status-badge.unknown { color: #967f64; }
+.chart-empty { padding: 55px 20px; color: #8a7257; font-size: 13px; text-align: center; }
+.floor-facts dd { text-align: right; }
+.floor-card-heading { flex-wrap: wrap; gap: 6px; }

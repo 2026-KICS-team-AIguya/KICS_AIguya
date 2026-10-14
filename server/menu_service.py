@@ -21,7 +21,7 @@ MIN_REFRESH_SECONDS = 60
 SOURCES = {
     "sangnok": {"name": "상록원", "label": "동국대학교 생활협동조합", "url": "https://dgucoop.dongguk.edu:44649/store/store.php?w=4&l=2"},
     "dormitory": {"name": "기숙사 식당", "label": "동국대학교 남산학사", "url": "https://dorm.dongguk.edu/article/food/list"},
-    "business": {"name": "경영관", "label": "동국대학교 D-Flex 식당", "url": "https://www.dongguk.edu/article/FOODDFLEX/list"},
+    "business": {"name": "D-plex", "label": "동국대학교 D-Flex 식당", "url": "https://www.dongguk.edu/article/FOODDFLEX/list"},
 }
 ALLOWED_ORIGINS = {("www.dongguk.edu", 443), ("dorm.dongguk.edu", 443), ("dgucoop.dongguk.edu", 44649)}
 VOID_TAGS = {"img", "br", "input", "meta", "link", "hr", "source", "area", "wbr", "embed", "param", "col"}

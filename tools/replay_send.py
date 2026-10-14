@@ -57,6 +57,7 @@ def to_payload(row, timestamp, link_id):
     return {
         "timestamp": timestamp,
         "source": "csi",
+        "input_kind": "replay",
         "identifier": link_id or row.get("link_id") or "link_1",
         "features": features,
     }

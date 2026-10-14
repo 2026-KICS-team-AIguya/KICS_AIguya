@@ -1,6 +1,6 @@
 # KICS_AIguya
 
-무선 신호(Wi-Fi CSI + mmWave) 기반 실시간 혼잡도·예상 대기시간 예측 서비스
+Wi-Fi CSI 기반 층별 혼잡도와 키오스크 발권 흐름 안내 서비스
 카메라 없이 전파 신호만으로 센싱 — 프라이버시 보호
 
 ---
@@ -8,18 +8,11 @@
 ## 프로젝트 개요
 
 ```
-ESP32 Wi-Fi CSI  → 동적 움직임 감지 (사람이 오가는 정도)
-mmWave 레이더    → 정적 좌석 점유 감지 (앉아 있는 사람)
-외부 데이터       → 보조 feature
-        ↓
-   5초 정렬 → 5분 슬롯 집계
-        ↓
-   AI 모델 (혼잡도 분류)
-        ↓
-   웹 대시보드 (구역별 실시간 표시)
+ESP32 CSI (TX1/RX1) → 5초 특징값 11개 → AI 혼잡도 분류 → 층별 표시
+키오스크 API/로그   → 최근 5분·직전 5분 집계 → 별도 발권 흐름 표시 (준비 중)
 ```
 
-- **수집 장소**: 고깃집 (4테이블 규모, 파일럿)
+- **수집 장소**: 테스트 공간 (파일럿)
 - **서비스 대상**: 학식당 (확장 목표)
 
 > ⚠️ 수집과 서비스 대상 공간이 다르다. 발표 시 **"소규모 파일럿으로 원리 검증, 확장은 향후 과제"**로 명확히 선을 그을 것.
@@ -31,9 +24,9 @@ mmWave 레이더    → 정적 좌석 점유 감지 (앉아 있는 사람)
 | 팀원 | 담당 | 폴더 |
 |------|------|------|
 | 이희수 | Wi-Fi CSI 수집·신호처리 | `csi/` |
-| 장진호 | mmWave 수집·파싱 | `mmwave/` |
+| 장진호 | 기존 mmWave 담당 (현재 mmWave 미사용) | `mmwave/` |
 | 이송주 | 통합·전처리·서버·프론트 | `pipeline/` `server/` `web/` |
-| 김채은 | 외부 데이터 | `external/` |
+| 김채은 | AI 학습·추론, 외부 데이터 | `ai/` `external/` |
 
 ---
 
@@ -43,7 +36,7 @@ mmWave 레이더    → 정적 좌석 점유 감지 (앉아 있는 사람)
 KICS_AIguya/
 ├─ docs/         # 규격 문서, 회의록
 ├─ csi/          # 희수 — ESP32 수집·신호처리
-├─ mmwave/       # 진호 — 레이더 수집·파싱
+├─ mmwave/       # 기존 레이더 폴더, 현재 미사용
 ├─ external/     # 채은 — 외부 데이터
 ├─ pipeline/     # 송주 — 전처리 (오프라인·실시간 공용)
 ├─ ai/           # 모델 학습·평가
@@ -57,37 +50,11 @@ KICS_AIguya/
 
 ## 센서 배치
 
-```
-        ✳1 ┌─────────────────────┐ ✳2
-           │  ┌────┐   ┌────┐    │
-           │  │ A  │   │ B  │    │
-           │  └────┘   └────┘    │
-           │   ●1    △    ●2     │
-           │  ┌────┐   ┌────┐    │
-           │  │ C  │   │ D  │    │
-           │  └────┘   └────┘    │
-        ✳3 └─────────────────────┘ ✳4
+현재 CSI 송신기 1대와 수신기 1대(link_3)를 사용한다. mmWave는 사용하지 않는다.
+시연에서는 테스트 공간의 결과를 상록원 2층에 매핑하고, 1·3층은 예시 데이터로 표시한다.
+센서 한 쌍으로 여러 층이나 개별 좌석·구역을 측정했다고 표시하지 않는다.
 
-△ CSI 송신기(TX) 1대 — 중앙
-✳ CSI 수신기(RX) 4대 — 모서리, 각 링크가 대각선으로 테이블 관통
-● mmWave 2대 — 좌(A/C) · 우(B/D)
-```
-
-| 센서 | 필요 | 보유 | 추가 |
-|------|:---:|:---:|:---:|
-| ESP32 | 5 (TX1+RX4) | 2 | **3** |
-| mmWave (HLK-LD6001A) | 2 | 1 | **1** |
-
-**CSI 링크 매핑 (검증 전)**
-```
-link_1 → zone_A     link_2 → zone_B
-link_3 → zone_C     link_4 → zone_D
-```
-
-> ⚠️ 네 링크가 TX를 공유하므로 경로가 중앙에서 겹친다.
-> **"link_1 = zone_A"를 확정하지 말 것.** 배치 후 한 구역에만 사람을 두고
-> 네 링크 반응을 비교하는 **분리도 검증 실험**이 필요하다.
-> 분리가 약하면 네 링크 값을 전부 feature로 쓰는 방식으로 전환.
+희수 컴퓨터에서 센서 수집·백엔드를 실행하고, 같은 공유기의 송주 컴퓨터에서는 `http://희수컴퓨터IP:8000/dashboard/`에 접속한다. 터미널별 실행 명령은 [CSI 연결 문서](docs/CSI_INTEGRATION.md)에 있다. 식당 목록은 상록원·기숙사 식당·D-plex 세 곳이다.
 
 ---
 
@@ -103,9 +70,9 @@ link_3 → zone_C     link_4 → zone_D
 | Feature | **5초 grid** |
 | 경계 | window **시작 시각**, `[start, end)` |
 | 집계 단위 | 5분 (송주 처리) |
-| feature window | 센서 담당자 재량 |
+| feature window | 현재 모델은 5초 특징값 11개 |
 
-> mmWave 20Hz → 5초에 약 100프레임. 5초 grid로 충분.
+현재 CSI 수집 설정은 36 PPS이며, 실제 TX 설정과 expected-pps를 맞춘다.
 
 **Raw에는 `device_time_us`와 `host_epoch_ms` 둘 다 기록** (버퍼링 지연 확인용)
 
@@ -113,42 +80,34 @@ link_3 → zone_C     link_4 → zone_D
 
 | 소스 | 식별자 |
 |------|--------|
-| CSI | `link_id` (link_1 ~ link_4) |
-| mmWave | `zone` (zone_A ~ zone_D) |
-| 외부 | 없음 (timestamp만) |
+| CSI | `link_id` (현재 `link_3` 한 개) |
+| 키오스크 | `kiosk_id` + 식당 식별자 |
 
 ### 파일
 
 | 항목 | 값 |
 |------|-----|
 | 필수 컬럼 | `timestamp` + 식별자 |
-| 접두사 | `csi_` / `mm_` / `ext_` |
+| 접두사 | `csi_` / `ext_` |
 | 결측 | **빈칸** (`-1` 금지) |
 | 파일명 | `{소스}_{YYYYMMDD}_{HHMM}.csv` |
 | raw 보관 | **필수** (feature와 별도) |
 
-특징값 목록은 자유. 접두사·필수 컬럼만 지키면 각자 결정.
+AI 입력 특징값 11개는 `ai/scripts/config.py`의 `FEATURES`를 기준으로 맞춘다.
 컬럼 추가·변경 시 송주에게 알릴 것.
 
 **결측률 컬럼 (필수)**
 ```
 CSI    : csi_packet_count, csi_missing_rate
-mmWave : mm_frame_count
 ```
 > CSI는 패킷이 안 오면 행 자체가 안 생겨서 빈칸으로 결측을 판단할 수 없다.
 
 ### 파일 예시
 
 ```csv
-# csi_20260812_1800.csv
+# 기본 특징값 CSV 예시 (AI 입력 전체가 아님)
 timestamp,link_id,csi_amp_var,csi_amp_mean,csi_packet_count,csi_missing_rate
-1785397655000,link_1,0.31,12.4,493,0.014
-1785397655000,link_2,0.22,11.8,491,0.018
-
-# mm_20260812_1800.csv
-timestamp,zone,mm_presence,mm_static_energy,mm_moving_energy,mm_frame_count
-1785397655000,zone_A,1,0.91,0.12,98
-1785397655000,zone_B,0,0.05,0.02,98
+1785397655000,link_3,0.31,12.4,175,0.027778
 
 # label_20260812_1800.csv
 start_timestamp,end_timestamp,zone,seats,occupied,status,level
@@ -170,7 +129,7 @@ start_timestamp,end_timestamp,zone,seats,occupied,status,level
 보통 : 30% < x < 70%
 혼잡 : ≥ 70%
 ```
-구역별 좌석 수를 미리 세어둘 것.
+학습 라벨 기준이다. 현재 화면에는 혼잡 등급과 모델 신뢰도를 표시하며, 점유율로 환산하지 않는다.
 
 ### 동기화
 
@@ -179,7 +138,7 @@ start_timestamp,end_timestamp,zone,seats,occupied,status,level
 | NTP | 주 동기화 |
 | 손 흔들기 | 검증·보정 백업 |
 
-세션 시작·끝 각 5초. **TX-RX 경로를 가로막으면서 레이더 시야에도 들어가는 위치**에서.
+세션 시작·끝 각 5초, TX-RX 경로를 가로막는 동작으로 동기화를 확인한다.
 
 ---
 
@@ -190,7 +149,7 @@ start_timestamp,end_timestamp,zone,seats,occupied,status,level
 DB        : SQLite
 전처리    : pandas
 학습      : scikit-learn
-프론트    : HTML + Chart.js
+프론트    : HTML/CSS/JavaScript + SVG
 CSI 펌웨어 : ESP-IDF (C)
 ```
 
@@ -207,15 +166,13 @@ git config user.name "본인 이름"
 git config user.email "GitHub 등록 이메일"
 
 # 작업할 때마다
-git checkout main
-git pull upstream main
-git push origin main
-git checkout -b feat/작업이름
+git fetch upstream
+git switch --no-track -c feat/작업이름 upstream/develop
 # 작업 후
 git add .
 git commit -m "feat: 설명"
-git push origin feat/작업이름
-# GitHub에서 중앙 레포로 PR
+git push -u origin feat/작업이름
+# GitHub에서 중앙 레포의 develop을 대상으로 PR
 ```
 
 **커밋 메시지**: `feat:` `fix:` `docs:` `refactor:` `chore:`
@@ -230,14 +187,15 @@ git push origin feat/작업이름
 
 ## 미결 사항
 
-- [ ] **대기시간: 실측 vs 휴리스틱** — 결정 안 하면 자동으로 휴리스틱.
-      실측하려면 수집 시 스톱워치로 같이 재야 함 (수집 시작 전 결정 필요)
-- [ ] CSI 링크 분리도 검증 실험 (센서 도착 후)
-- [ ] 구역별 좌석 수 실측
+- [ ] 키오스크 데이터 제공 방식·범위 확인
+- [ ] CSI 한 쌍과 AI의 현장 추론 검증
+- [ ] 실측 혼잡 데이터와 운영 기준값 수집 조건 검증
+- [x] 공유기 내 실행 구성: 희수 컴퓨터 수집·백엔드 / 송주 컴퓨터 웹 접속
+- [ ] 외부 공개용 HTTPS 백엔드 주소 결정
 
 ---
 
 ## 상세 문서
 
-프로젝트 전체 맥락은 `docs/PROJECT_CONTEXT.md` 참고.
+현재 CSI·AI·백엔드 연결 규격과 실행은 `docs/CSI_INTEGRATION.md` 참고.
 AI 툴 사용 시 해당 파일을 첨부하면 맥락이 이어진다.

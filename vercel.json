@@ -9,7 +9,7 @@
     "api/**/*.py": {
       "maxDuration": 60,
       "includeFiles": "web/menus.json",
-      "excludeFiles": "{public/**,web/assets/**,web/*.js,web/*.css,web/*.html,web/*.md,tests/**,tools/**,docs/**,data/**,venv/**,server/database.py,server/main.py,server/models.py,server/predict.py,**/*.db,**/*.csv}"
+      "excludeFiles": "{public/**,web/assets/**,web/*.js,web/*.css,web/*.html,web/*.md,tests/**,tools/**,docs/**,data/**,venv/**,server/database.py,server/main.py,server/models.py,server/predict.py,server/congestion_service.py,**/*.db,**/*.csv}"
     }
   },
   "headers": [

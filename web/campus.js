@@ -122,6 +122,6 @@ function drawCampus(locations, selectedId, angle, flat) {
   svg.innerHTML = markup;
   const focusedId = document.activeElement?.closest?.("[data-location]")?.dataset.location;
   const restorePinFocus = pins.contains(document.activeElement);
-  pins.innerHTML = labels.map(({ location, x, y }) => `<button type="button" class="campus-pin ${location.id === selectedId ? "selected" : ""}" data-location="${location.id}" aria-pressed="${location.id === selectedId}" aria-label="${location.name}, ${location.mode === "demo" ? "공식 메뉴와 더미 혼잡도 보기" : "공식 메뉴 보기, 혼잡도 준비 중"}" style="left:${x / width * 100}%;top:${y / height * 100}%"><span>${location.name}</span><small>${location.mode === "demo" ? "시연 중" : "준비 중"}</small></button>`).join("");
+  pins.innerHTML = labels.map(({ location, x, y }) => `<button type="button" class="campus-pin ${location.id === selectedId ? "selected" : ""}" data-location="${location.id}" aria-pressed="${location.id === selectedId}" aria-label="${location.name}, ${location.floors.length > 0 ? "공식 메뉴와 층별 혼잡도 보기" : "공식 메뉴 보기, 혼잡도 준비 중"}" style="left:${x / width * 100}%;top:${y / height * 100}%"><span>${location.name}</span><small>${location.floors.length > 0 ? "층별 현황" : "준비 중"}</small></button>`).join("");
   if (restorePinFocus && focusedId) pins.querySelector(`[data-location="${focusedId}"]`)?.focus({ preventScroll: true });
 }
