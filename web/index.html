@@ -12,11 +12,11 @@
     <script src="data.js" defer></script>
     <script src="campus.js" defer></script>
     <script src="room.js" defer></script>
-    <script src="kiosk.js" defer></script>
     <script src="menu-cache.js" defer></script>
     <script src="runtime-config.js" defer></script>
     <script src="menus.js" defer></script>
     <script src="congestion.js" defer></script>
+    <script src="kiosk.js" defer></script>
     <script src="app.js" defer></script>
   </head>
   <body>
@@ -128,6 +128,7 @@
             </div>
           </div>
           <div class="demo-actions" id="data-actions">
+            <button id="kiosk-mode" class="kiosk-mode" type="button"><span class="kiosk-mode-caption">시연 시간 ↻</span><strong id="kiosk-mode-label">실시간 · 현재 시각</strong></button>
             <span id="updated-at"></span>
             <button class="icon-button" id="refresh-button" type="button" aria-label="혼잡도와 발권 정보 새로고침"><svg class="icon" aria-hidden="true"><use href="#i-refresh"/></svg></button>
           </div>
@@ -163,20 +164,21 @@
           <p id="connection-note">혼잡도는 자동으로 갱신됩니다. 1·3층은 예시 데이터입니다.</p>
           <button id="auto-button" type="button" aria-pressed="true">자동 갱신 켜짐</button>
         </div>
-        <section class="ticket-panel" aria-labelledby="ticket-title">
-          <div class="ticket-summary">
-            <div class="panel-heading"><h3 id="ticket-title">키오스크 발권</h3><span class="muted-label">최근 5분</span></div>
-            <p class="ticket-asof" id="ticket-asof"></p>
-            <div class="ticket-metric"><strong id="ticket-count">—</strong><span>건</span><span class="ticket-change" id="ticket-change"></span></div>
-            <p class="ticket-hint" id="ticket-hint"></p>
+        <section id="kiosk-service" class="kiosk-service" aria-labelledby="kiosk-title">
+          <div class="kiosk-heading"><div><p class="section-caption">상록원 2층 · 발권에서 식사까지</p><h3 id="kiosk-title">지금, 어느 코너가 좋을까?</h3></div><span class="kiosk-demo-label">가상 데이터 시연</span></div>
+          <p class="kiosk-intro">한 끼를 고르는 작은 힌트. 발권 흐름으로 대기와 남은 메뉴를 살펴보세요.</p>
+          <div id="kiosk-briefing-box" class="kiosk-briefing-box" role="status" aria-live="polite" aria-atomic="true"><span class="kiosk-briefing-symbol" aria-hidden="true">✳</span><div><strong>한눈에 보는 식당 소식</strong><p id="kiosk-briefing">발권 흐름을 살펴보고 있어요…</p></div><button id="kiosk-retry" type="button" hidden>다시 확인</button></div>
+          <div class="kiosk-meta"><span id="kiosk-asof"></span><span>실시간 모드도 현재 시각 기준의 가상 데이터입니다</span></div>
+          <div id="kiosk-results" hidden>
+            <div class="kiosk-metrics">
+              <article class="kiosk-metric-card"><p class="kiosk-eyebrow">01 / 머무는 사람들</p><h4>식사와 자리의 흐름</h4><div class="kiosk-big"><strong id="kiosk-eating">—</strong><span>명 <small>식사 중 추정</small></span></div><p class="kiosk-secondary">10분 내 퇴장 예상 <strong><span id="kiosk-leaving">—</span>명</strong></p><div class="kiosk-sensor-box"><strong id="kiosk-sensor"></strong><p id="kiosk-sensor-source"></p></div></article>
+              <article class="kiosk-metric-card"><p class="kiosk-eyebrow">02 / 들어오는 발걸음</p><div class="kiosk-card-heading"><h4>발권 속도</h4><span id="kiosk-surge" class="kiosk-pill"></span></div><div class="kiosk-big"><strong id="kiosk-recent">—</strong><span>건 <small>최근 5분</small></span></div><p id="kiosk-prev" class="kiosk-secondary"></p><div id="kiosk-chart" class="kiosk-chart"></div><div class="kiosk-chart-labels"><span>30분 전</span><span>5분 단위 발권량</span><span>지금</span></div></article>
+              <article class="kiosk-metric-card kiosk-golden-card"><p class="kiosk-eyebrow">03 / 방문의 타이밍</p><h4>평소와 비교하면</h4><div class="kiosk-big"><strong id="kiosk-diff">—</strong></div><p class="kiosk-secondary">최근 10분 발권량 · 가상 기준 대비</p><div class="kiosk-golden-box"><span>방문 시간 힌트</span><strong id="kiosk-golden"></strong><p id="kiosk-golden-tip"></p></div></article>
+            </div>
+            <div class="kiosk-corners-heading"><h4>오늘의 세 코너</h4><span>대기부터 마지막 한 그릇까지</span></div>
+            <div id="kiosk-corners" class="kiosk-corners"></div>
           </div>
-          <div class="ticket-comparison" id="ticket-comparison" aria-label="직전 5분과 최근 5분 발권량 비교">
-            <div class="ticket-comparison-row"><span>직전 5분</span><strong id="ticket-previous">—</strong></div>
-            <div class="ticket-bar" aria-hidden="true"><span id="ticket-previous-bar"></span></div>
-            <div class="ticket-comparison-row"><span>최근 5분</span><strong id="ticket-recent">—</strong></div>
-            <div class="ticket-bar current" aria-hidden="true"><span id="ticket-recent-bar"></span></div>
-            <p>등록된 키오스크 전체 기준입니다. 발권 건수는 현재 대기 인원과 다를 수 있습니다.</p>
-          </div>
+          <details class="kiosk-method"><summary>이 숫자들은 어떻게 계산하나요?</summary><p>가상 발권량과 분당 배식량으로 대기열을 계산합니다. 배식을 마친 뒤 10~40분 머문다는 가정으로 식사·퇴장 인원을 추정합니다. 품절 시각은 최근 15분 소진 속도가 유지될 때의 예상이며, 방문 시간은 가상 대기열 전망입니다. 실제 인원·빈 좌석·재고를 측정한 결과가 아닙니다.</p><p>한식·일품·분식과 운영시간(09:00~19:00)은 시연용 설정이며 공식 메뉴·운영 안내와 별개입니다. 고정 시연은 같은 발권 흐름을 재현하며, 실시간 모드는 날짜별 가상 흐름을 사용합니다.</p></details>
         </section>
         <div id="dining-content">
           <div class="floor-cards" id="floor-cards" role="group" aria-label="상록원 층 선택"></div>

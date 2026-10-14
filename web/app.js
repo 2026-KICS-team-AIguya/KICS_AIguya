@@ -11,31 +11,11 @@ const state = {
 const timeFormat = dateFormatter({ hour: "2-digit", minute: "2-digit", hour12: false });
 const dateFormat = dateFormatter({ year: "numeric", month: "2-digit", day: "2-digit" });
 const preciseTimeFormat = dateFormatter({ hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: false });
-const numberFrames = new WeakMap();
 let cameraFrame = 0;
 
 function activeLocation() { return state.locations.find(location => location.id === state.locationId); }
 function activeFloors() { return activeLocation().floors; }
 function activeFloor() { return activeFloors().find(floor => floor.id === state.floorId); }
-
-function animateNumber(element, value, suffix = "") {
-  if (numberFrames.has(element)) cancelAnimationFrame(numberFrames.get(element));
-  numberFrames.delete(element);
-  if (!Number.isFinite(value)) { element.textContent = "—"; return; }
-  const previous = parseInt(element.textContent, 10);
-  if (!state.motion || !Number.isFinite(previous) || previous === value || !window.requestAnimationFrame) {
-    element.textContent = `${value}${suffix}`;
-    return;
-  }
-  const start = performance.now();
-  function frame(now) {
-    const progress = Math.min(1, (now - start) / 320);
-    element.textContent = `${Math.round(previous + (value - previous) * (1 - (1 - progress) ** 3))}${suffix}`;
-    if (progress < 1) numberFrames.set(element, requestAnimationFrame(frame));
-    else numberFrames.delete(element);
-  }
-  numberFrames.set(element, requestAnimationFrame(frame));
-}
 
 function transitionContent(element) {
   if (state.motion && element?.animate) element.animate([{ opacity: .65, transform: "translateY(5px)" }, { opacity: 1, transform: "translateY(0)" }], { duration: 330, easing: "cubic-bezier(.2,.65,.25,1)" });
@@ -163,7 +143,7 @@ function selectFloor(id) {
 
 async function refreshDashboard(manual = false) {
   advanceDemoFloors();
-  await refreshCongestion();
+  await Promise.all([refreshCongestion(), refreshKiosk()]);
   renderDashboard();
   if (manual) $("announcement").textContent = "혼잡도와 발권 정보를 새로 확인했습니다.";
 }
@@ -271,9 +251,6 @@ function setMotion(enabled) {
   if (!enabled) {
     if (cameraFrame) cancelAnimationFrame(cameraFrame);
     cameraFrame = 0;
-    const element = $("ticket-count");
-    if (numberFrames.has(element)) cancelAnimationFrame(numberFrames.get(element));
-    numberFrames.delete(element);
     if (activeFloor()) renderDetail();
     renderKiosk();
     $("room-art-frame").style.setProperty("--tilt-x", "0deg");

@@ -2,8 +2,11 @@ const assert = require("node:assert/strict");
 const fs = require("node:fs");
 const path = require("node:path");
 const vm = require("node:vm");
+const { execFileSync } = require("node:child_process");
 
 const root = path.resolve(__dirname, "..");
+const python = process.env.PYTHON || (fs.existsSync(path.join(root, ".venv/Scripts/python.exe")) ? path.join(root, ".venv/Scripts/python.exe") : "python");
+const kioskFixture = JSON.parse(execFileSync(python, ["-B", "-c", "import json; from server.kiosk_analysis import analyze_kiosk; print(json.dumps(analyze_kiosk(12)))"], { cwd: root, encoding: "utf8" }));
 const html = fs.readFileSync(path.join(root, "web/index.html"), "utf8");
 const ids = [...html.matchAll(/\bid="([^"]+)"/g)].map(match => match[1]);
 assert.equal(new Set(ids).size, ids.length);
@@ -21,6 +24,7 @@ function element(id) {
 }
 
 function harness({ lan = false } = {}) {
+  let kioskResponse = structuredClone(kioskFixture), kioskFailure = false, kioskFetch;
   let clock = Date.UTC(2026, 9, 12, 4), response, failure = false;
   class TestDate extends Date {
     constructor(...args) { super(...(args.length ? args : [clock])); }
@@ -38,6 +42,11 @@ function harness({ lan = false } = {}) {
     setInterval(callback, delay) { intervals.push({ callback, delay }); },
     async fetch(url) {
       calls.push(url);
+      if (url.includes("kiosk-analysis") || url.includes("comprehensive-analysis")) {
+        if (kioskFetch) return kioskFetch(url);
+        if (kioskFailure) throw new Error("kiosk offline");
+        return { ok: true, json: async () => kioskResponse };
+      }
       if (failure) throw new Error("offline");
       return { ok: true, json: async () => response };
     },
@@ -53,7 +62,7 @@ function harness({ lan = false } = {}) {
   });
   response = snapshot();
   for (const match of html.matchAll(/<script src="([^"]+)" defer><\/script>/g)) run(fs.readFileSync(path.join(root, "web", match[1]), "utf8"));
-  return { run, nodes, intervals, calls, snapshot, setResponse(value) { response = value; }, fail(value) { failure = value; }, advance(ms) { clock += ms; },
+  return { run, nodes, intervals, calls, snapshot, setKiosk(value) { kioskResponse = value; }, failKiosk(value) { kioskFailure = value; }, setKioskFetch(value) { kioskFetch = value; }, setResponse(value) { response = value; }, fail(value) { failure = value; }, advance(ms) { clock += ms; },
     click(id, dataset) { nodes.get(id).handlers.click({ target: { closest: () => ({ dataset }) } }); } };
 }
 
@@ -64,7 +73,7 @@ async function main() {
   assert.equal(h.run("state.locations.length"), 3);
   assert.equal(h.run("state.floorId"), 2);
   assert.equal(node("floor-level").textContent, "—");
-  assert.equal(node("ticket-count").textContent, "—");
+  assert.equal(node("kiosk-results").hidden, false); // CSI failure does not hide independent kiosk simulation.
   assert.ok(!node("floor-plan").innerHTML.includes("data-zone"));
 
   for (const [status, label] of [["calibrating", "측정 준비 중"], ["skipped", "확인 중"], ["stale", "업데이트 지연"]]) {
@@ -98,25 +107,56 @@ async function main() {
   await h.run("refreshDashboard()");
   assert.equal(node("floor-data-status").textContent, "기록 데이터");
 
-  let data = h.snapshot("ok");
-  data.kiosk = { status: "ok", recent: 42, previous: 24, as_of: data.server_time };
-  h.setResponse(data);
   await h.run("refreshDashboard()");
-  assert.equal(node("ticket-count").textContent, "42");
-  assert.equal(node("ticket-change").textContent, "+18건 (+75%)");
-  data.kiosk = { status: "ok", recent: 0, previous: 0 };
-  await h.run("refreshDashboard()");
-  assert.equal(node("ticket-count").textContent, "0");
-  assert.equal(node("ticket-change").textContent, "변동 없음");
-  data.kiosk = { status: "collecting", recent: null, previous: null };
-  await h.run("refreshDashboard()");
-  assert.equal(node("ticket-count").textContent, "—");
+  assert.equal(node("kiosk-recent").textContent, kioskFixture.surge_momentum.recent_5m);
+  assert.equal(node("kiosk-results").hidden, false);
+  assert.ok(node("kiosk-corners").innerHTML.includes("품절 예상"));
+  assert.ok(node("kiosk-corners").innerHTML.includes("progress"));
+  assert.ok(node("kiosk-sensor-source").textContent.includes("별도 자료"));
+  for (const [label, query] of [["12:00", "test_hour=12&test_minute=0"], ["11:30", "test_hour=11&test_minute=30"], ["15:00", "test_hour=15&test_minute=0"], ["실시간", ""]]) {
+    node("kiosk-mode").handlers.click();
+    await h.run("refreshKiosk()");
+    assert.ok(node("kiosk-mode-label").textContent.includes(label));
+    assert.ok(h.calls.at(-1).endsWith(query || "/api/kiosk-analysis"));
+  }
+  h.failKiosk(true);
+  await h.run("refreshKiosk()");
+  assert.equal(node("kiosk-results").hidden, true);
+  assert.equal(node("kiosk-retry").hidden, false);
+  h.failKiosk(false);
+  const malformed = structuredClone(kioskFixture);
+  malformed.corners.special.remaining_stock = -1;
+  h.setKiosk(malformed);
+  await h.run("refreshKiosk()");
+  assert.equal(node("kiosk-results").hidden, true);
+  const sold = structuredClone(kioskFixture);
+  sold.golden_time_stats.recommended_time = null;
+  for (const c of Object.values(sold.corners)) { c.remaining_stock = 0; c.sold_out = true; }
+  h.setKiosk(sold);
+  await h.run("refreshKiosk()");
+  assert.equal(node("kiosk-golden").textContent, "오늘 준비 수량 소진");
+  h.setKiosk(kioskFixture);
+  await h.run("refreshKiosk()");
+  assert.equal(node("kiosk-results").hidden, false);
+  // An older response must not overwrite a newer mode, even if abort is ignored.
+  const pending = [];
+  h.setKioskFetch(() => new Promise(resolve => pending.push(resolve)));
+  const oldRequest = h.run("refreshKiosk()");
+  h.run("kioskState.mode = 1");
+  const newRequest = h.run("refreshKiosk()");
+  const latest = structuredClone(kioskFixture); latest.summary_briefing = "new mode";
+  pending[1]({ ok: true, json: async () => latest });
+  await newRequest;
+  pending[0]({ ok: true, json: async () => kioskFixture });
+  await oldRequest;
+  assert.equal(node("kiosk-briefing").textContent, "new mode");
+  h.setKioskFetch(null);
 
   h.fail(true);
   await h.run("refreshDashboard()");
   assert.equal(node("floor-status").textContent, "연결 확인 중");
   assert.equal(node("floor-confidence").textContent, "—");
-  assert.equal(node("ticket-count").textContent, "—");
+  assert.equal(node("kiosk-results").hidden, false); // CSI failure does not hide independent kiosk simulation.
   h.click("floor-tabs", { floor: "1" });
   assert.equal(node("floor-data-status").textContent, "예시 데이터");
   const calls = h.calls.length;
@@ -129,6 +169,7 @@ async function main() {
     h.click("location-list", { location });
     assert.equal(h.run("state.locationId"), location);
     assert.equal(node("dining-content").hidden, location !== "sangnok");
+    assert.equal(node("kiosk-service").hidden, location !== "sangnok");
     if (location === "business") assert.equal(node("building-title").textContent, "D-plex");
   }
   node("view-flat").handlers.click();
@@ -144,8 +185,9 @@ async function main() {
   const lan = harness({ lan: true });
   await lan.run("refreshDashboard()");
   assert.ok(lan.calls.includes("http://192.168.0.23:8000/congestion?location_id=sangnok"));
+  assert.ok(lan.calls.includes("http://192.168.0.23:8000/kiosk/comprehensive-analysis"));
   assert.ok(!lan.calls.some(url => url.includes("127.0.0.1")));
-  console.log("PASS: floor AI states, marked demo floors, kiosk windows, offline/pause, navigation and menu checks.");
+  console.log("PASS: floor AI states, marked demo floors, kiosk modes/races/errors, offline/pause, navigation and menu checks.");
   console.log("Mock DOM verification; browser layout requires separate inspection.");
 }
 main().catch(error => { console.error(error); process.exitCode = 1; });

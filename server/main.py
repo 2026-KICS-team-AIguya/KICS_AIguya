@@ -22,6 +22,7 @@ from sqlalchemy.orm import Session, sessionmaker
 from server.database import Base, engine
 from server.congestion_service import CongestionService, GRID_MS, ingest_kiosk
 from server.models import CsiMeasurement
+from server.kiosk_analysis import analyze_kiosk
 from server.menu_service import menu_service, WEB_ROOT
 
 
@@ -154,6 +155,14 @@ def create_app(db_engine=None, service=None, menu_updates=True):
     @app.post("/aggregate")
     def aggregate(location_id: Literal["sangnok", "dormitory", "business", "test"] = "sangnok", db: Session = Depends(get_db)):
         return {"floors": service.snapshot(db, location_id)["floors"]}
+
+    @app.get("/kiosk/comprehensive-analysis")
+    def kiosk_analysis(test_hour: int | None = Query(None, ge=0, le=23),
+                       test_minute: int | None = Query(None, ge=0, le=59)):
+        try:
+            return JSONResponse(analyze_kiosk(test_hour, test_minute), headers={"Cache-Control": "no-store"})
+        except ValueError as error:
+            raise HTTPException(422, str(error)) from error
 
     @app.get("/menus")
     def menus(refresh: bool = False):
