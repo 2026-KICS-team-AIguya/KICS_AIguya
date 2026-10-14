@@ -7,17 +7,17 @@
     <meta name="description" content="동국대학교 서울캠퍼스의 한 끼. 상록원, 기숙사 식당, D-plex의 주간 메뉴와 층별 혼잡도를 확인하세요.">
     <title>동국식당 — 오늘 점심은 어디서?</title>
     <link rel="preload" href="assets/fonts/GowunBatang-Bold-web.ttf" as="font" type="font/ttf" crossorigin>
-    <link rel="stylesheet" href="styles.css">
-    <script src="shared.js" defer></script>
-    <script src="data.js" defer></script>
-    <script src="campus.js" defer></script>
-    <script src="room.js" defer></script>
-    <script src="menu-cache.js" defer></script>
-    <script src="runtime-config.js" defer></script>
-    <script src="menus.js" defer></script>
-    <script src="congestion.js" defer></script>
-    <script src="kiosk.js" defer></script>
-    <script src="app.js" defer></script>
+    <link rel="stylesheet" href="styles.css?v=20261014-kiosk-flow">
+    <script src="shared.js?v=20261014-floor1" defer></script>
+    <script src="data.js?v=20261014-floor1" defer></script>
+    <script src="campus.js?v=20261014-floor1" defer></script>
+    <script src="room.js?v=20261014-floor1" defer></script>
+    <script src="menu-cache.js?v=20261014-floor1" defer></script>
+    <script src="runtime-config.js?v=20261014-floor1" defer></script>
+    <script src="menus.js?v=20261014-floor1" defer></script>
+    <script src="congestion.js?v=20261014-floor1" defer></script>
+    <script src="kiosk.js?v=20261014-kiosk-flow" defer></script>
+    <script src="app.js?v=20261014-floor1" defer></script>
   </head>
   <body>
     <a class="skip-link" href="#main">본문 바로가기</a>
@@ -128,62 +128,65 @@
             </div>
           </div>
           <div class="demo-actions" id="data-actions">
-            <button id="kiosk-mode" class="kiosk-mode" type="button"><span class="kiosk-mode-caption">시연 시간 ↻</span><strong id="kiosk-mode-label">실시간 · 현재 시각</strong></button>
+            <button id="kiosk-mode" class="kiosk-mode" type="button"><span class="kiosk-mode-caption">시연 시간 ↻</span><strong id="kiosk-mode-label">실시간 · 목데이터</strong></button>
             <span id="updated-at"></span>
             <button class="icon-button" id="refresh-button" type="button" aria-label="혼잡도와 발권 정보 새로고침"><svg class="icon" aria-hidden="true"><use href="#i-refresh"/></svg></button>
           </div>
         </div>
-        <section class="weekly-menu" id="weekly-menu" aria-labelledby="menu-title">
-          <div class="weekly-menu-heading">
-            <div>
-              <div class="menu-title-row">
-                <h3 id="menu-title">주간 식단</h3>
-                <span class="menu-status" id="menu-status">확인 중</span>
+        <details class="weekly-menu" id="weekly-menu">
+          <summary class="weekly-menu-toggle"><span class="menu-toggle-icon" aria-hidden="true">🍚</span><span class="menu-toggle-copy"><span id="menu-title">주간 식단</span><span class="menu-toggle-subtitle">오늘의 한 끼를 확인해 보세요</span></span><span class="menu-toggle-hint"><span class="menu-toggle-closed">식단표 보기</span><span class="menu-toggle-open">접기</span><span class="menu-chevron" aria-hidden="true">⌄</span></span></summary>
+          <div class="weekly-menu-content">
+            <div class="weekly-menu-heading">
+              <div>
+                <div class="menu-title-row">
+                  <span class="menu-status" id="menu-status">확인 중</span>
+                </div>
+                <p id="menu-period"></p>
               </div>
-              <p id="menu-period"></p>
+              <div class="menu-tools">
+                <button type="button" id="menu-refresh" hidden>새로 확인</button>
+                <a id="menu-source" href="https://dgucoop.dongguk.edu:44649/store/store.php?w=4&l=2" target="_blank" rel="noopener noreferrer">공식 안내 ↗</a>
+              </div>
             </div>
-            <div class="menu-tools">
-              <button type="button" id="menu-refresh" hidden>새로 확인</button>
-              <a id="menu-source" href="https://dgucoop.dongguk.edu:44649/store/store.php?w=4&l=2" target="_blank" rel="noopener noreferrer">공식 안내 ↗</a>
+            <div class="menu-meta">
+              <p id="menu-message"></p>
+              <span id="menu-checked"></span>
             </div>
+            <label class="menu-floor-field" id="menu-floor-field" hidden>식당 층 <select id="menu-floor" aria-label="메뉴와 혼잡도를 볼 층 선택"></select></label>
+            <div class="menu-date-tabs" id="menu-date-tabs" role="group" aria-label="메뉴 날짜 선택" hidden>
+            </div>
+            <div id="menu-content">
+            </div>
+            <div class="menu-attachments" id="menu-attachments">
+            </div>
+            <p class="menu-footnote">메뉴·가격·운영시간은 공식 게시 내용 기준입니다. 변경 여부는 식당 안내를 확인해 주세요.</p>
           </div>
-          <div class="menu-meta">
-            <p id="menu-message"></p>
-            <span id="menu-checked"></span>
-          </div>
-          <label class="menu-floor-field" id="menu-floor-field" hidden>식당 층 <select id="menu-floor" aria-label="메뉴와 혼잡도를 볼 층 선택"></select></label>
-          <div class="menu-date-tabs" id="menu-date-tabs" role="group" aria-label="메뉴 날짜 선택" hidden>
-          </div>
-          <div id="menu-content">
-          </div>
-          <div class="menu-attachments" id="menu-attachments">
-          </div>
-          <p class="menu-footnote">메뉴·가격·운영시간은 공식 게시 내용 기준입니다. 변경 여부는 식당 안내를 확인해 주세요.</p>
-        </section>
+        </details>
         <div class="data-notice">
-          <p id="connection-note">혼잡도는 자동으로 갱신됩니다. 1·3층은 예시 데이터입니다.</p>
+          <p id="connection-note">혼잡도는 자동으로 갱신됩니다. 2·3층은 예시 데이터입니다.</p>
           <button id="auto-button" type="button" aria-pressed="true">자동 갱신 켜짐</button>
         </div>
+        <div class="floor-cards" id="floor-cards" role="group" aria-label="상록원 층 선택"></div>
         <section id="kiosk-service" class="kiosk-service" aria-labelledby="kiosk-title">
-          <div class="kiosk-heading"><div><p class="section-caption">상록원 2층 · 발권에서 식사까지</p><h3 id="kiosk-title">지금, 어느 코너가 좋을까?</h3></div><span class="kiosk-demo-label">가상 데이터 시연</span></div>
-          <p class="kiosk-intro">한 끼를 고르는 작은 힌트. 발권 흐름으로 대기와 남은 메뉴를 살펴보세요.</p>
-          <div id="kiosk-briefing-box" class="kiosk-briefing-box" role="status" aria-live="polite" aria-atomic="true"><span class="kiosk-briefing-symbol" aria-hidden="true">✳</span><div><strong>한눈에 보는 식당 소식</strong><p id="kiosk-briefing">발권 흐름을 살펴보고 있어요…</p></div><button id="kiosk-retry" type="button" hidden>다시 확인</button></div>
-          <div class="kiosk-meta"><span id="kiosk-asof"></span><span>실시간 모드도 현재 시각 기준의 가상 데이터입니다</span></div>
-          <div id="kiosk-results" hidden>
-            <div class="kiosk-metrics">
-              <article class="kiosk-metric-card"><p class="kiosk-eyebrow">01 / 머무는 사람들</p><h4>식사와 자리의 흐름</h4><div class="kiosk-big"><strong id="kiosk-eating">—</strong><span>명 <small>식사 중 추정</small></span></div><p class="kiosk-secondary">10분 내 퇴장 예상 <strong><span id="kiosk-leaving">—</span>명</strong></p><div class="kiosk-sensor-box"><strong id="kiosk-sensor"></strong><p id="kiosk-sensor-source"></p></div></article>
-              <article class="kiosk-metric-card"><p class="kiosk-eyebrow">02 / 들어오는 발걸음</p><div class="kiosk-card-heading"><h4>발권 속도</h4><span id="kiosk-surge" class="kiosk-pill"></span></div><div class="kiosk-big"><strong id="kiosk-recent">—</strong><span>건 <small>최근 5분</small></span></div><p id="kiosk-prev" class="kiosk-secondary"></p><div id="kiosk-chart" class="kiosk-chart"></div><div class="kiosk-chart-labels"><span>30분 전</span><span>5분 단위 발권량</span><span>지금</span></div></article>
-              <article class="kiosk-metric-card kiosk-golden-card"><p class="kiosk-eyebrow">03 / 방문의 타이밍</p><h4>평소와 비교하면</h4><div class="kiosk-big"><strong id="kiosk-diff">—</strong></div><p class="kiosk-secondary">최근 10분 발권량 · 가상 기준 대비</p><div class="kiosk-golden-box"><span>방문 시간 힌트</span><strong id="kiosk-golden"></strong><p id="kiosk-golden-tip"></p></div></article>
+          <div class="kiosk-heading"><div><p class="section-caption" id="kiosk-floor-caption">상록원 1층 · 키오스크 안내</p><h3 id="kiosk-title">지금, 식당은 어떤가요?</h3></div><span class="kiosk-demo-label" id="kiosk-source-badge">가상 데이터 시연</span></div>
+          <div id="kiosk-active-content">
+            <p class="kiosk-intro">최근 발권 흐름과 식당 이용 현황을 살펴보세요.</p>
+            <div id="kiosk-briefing-box" class="kiosk-briefing-box" role="status" aria-live="polite" aria-atomic="true"><span class="kiosk-briefing-symbol" aria-hidden="true">✳</span><div><strong>한눈에 보는 식당 소식</strong><p id="kiosk-briefing">발권 흐름을 살펴보고 있어요…</p></div><button id="kiosk-retry" type="button" hidden>다시 확인</button></div>
+            <div class="kiosk-meta"><span id="kiosk-asof"></span><span>발권 흐름을 유지하며 10초마다 갱신되는 목데이터입니다</span></div>
+            <div id="kiosk-results" hidden>
+              <div class="kiosk-metrics">
+                <article class="kiosk-metric-card"><p class="kiosk-eyebrow">01 / 머무는 사람들</p><h4>식당 이용 현황</h4><div class="kiosk-big"><strong id="kiosk-eating">—</strong><span>명 <small>식사 중 추정</small></span></div><p class="kiosk-secondary">10분 내 퇴장 예상 <strong><span id="kiosk-leaving">—</span>명</strong></p><div class="kiosk-sensor-box"><strong id="kiosk-sensor"></strong><p id="kiosk-sensor-source"></p></div></article>
+                <article class="kiosk-metric-card"><p class="kiosk-eyebrow">02 / 들어오는 발걸음</p><div class="kiosk-card-heading"><h4>발권 속도</h4><span id="kiosk-surge" class="kiosk-pill"></span></div><div class="kiosk-big"><strong id="kiosk-recent">—</strong><span>건 <small>최근 5분</small></span></div><p id="kiosk-prev" class="kiosk-secondary"></p><div id="kiosk-chart" class="kiosk-chart"></div><div class="kiosk-chart-labels"><span>30분 전</span><span>5분 단위 발권량</span><span>지금</span></div></article>
+                <article class="kiosk-metric-card kiosk-golden-card"><p class="kiosk-eyebrow">03 / 방문의 타이밍</p><h4>평소와 비교하면</h4><div class="kiosk-big"><strong id="kiosk-diff">—</strong></div><p class="kiosk-secondary">최근 10분 발권량 · 가상 기준 대비</p><div class="kiosk-golden-box"><span>방문 시간 힌트</span><strong id="kiosk-golden"></strong><p id="kiosk-golden-tip"></p></div></article>
+              </div>
             </div>
-            <div class="kiosk-corners-heading"><h4>오늘의 세 코너</h4><span>대기부터 마지막 한 그릇까지</span></div>
-            <div id="kiosk-corners" class="kiosk-corners"></div>
+            <details class="kiosk-method"><summary>이 숫자들은 어떻게 계산하나요?</summary><p>실시간 목데이터는 이전 발권 이력을 유지하며 10초마다 이어집니다. 가상 발권 후 30초 뒤 식사를 시작하고 20분 머문다는 가정으로 이용·퇴장 인원을 계산합니다. 목데이터 인원은 최대 120명이며, 실제 인원·빈 좌석을 측정한 결과가 아닙니다.</p><p>12:00·11:30·15:00 고정 시연은 별도의 발권·배식 시나리오입니다. 공식 메뉴·운영 안내 및 센서 혼잡도와는 별개입니다.</p></details>
           </div>
-          <details class="kiosk-method"><summary>이 숫자들은 어떻게 계산하나요?</summary><p>가상 발권량과 분당 배식량으로 대기열을 계산합니다. 배식을 마친 뒤 10~40분 머문다는 가정으로 식사·퇴장 인원을 추정합니다. 품절 시각은 최근 15분 소진 속도가 유지될 때의 예상이며, 방문 시간은 가상 대기열 전망입니다. 실제 인원·빈 좌석·재고를 측정한 결과가 아닙니다.</p><p>한식·일품·분식과 운영시간(09:00~19:00)은 시연용 설정이며 공식 메뉴·운영 안내와 별개입니다. 고정 시연은 같은 발권 흐름을 재현하며, 실시간 모드는 날짜별 가상 흐름을 사용합니다.</p></details>
+          <div id="kiosk-pending" class="kiosk-pending" hidden><h4>키오스크 안내 준비 중</h4><p id="kiosk-pending-message"></p><p>현재 상록원 1층을 중심으로 정보를 준비하고 있어요.</p></div>
         </section>
         <div id="dining-content">
-          <div class="floor-cards" id="floor-cards" role="group" aria-label="상록원 층 선택"></div>
           <div class="space-heading">
-            <h3 id="space-title">2층 학생식당</h3>
+            <h3 id="space-title">1층 식음료 매장</h3>
             <div class="floor-tabs" id="floor-tabs" role="group" aria-label="상세 화면 층 선택"></div>
           </div>
           <div class="space-layout">
@@ -194,7 +197,7 @@
             </div>
             <aside class="floor-detail" aria-labelledby="floor-title">
               <p class="receipt-heading">상록원 / 층 현황</p>
-              <div class="detail-heading"><h3 id="floor-title">2층</h3><span class="status-badge" id="floor-status"></span></div>
+              <div class="detail-heading"><h3 id="floor-title">1층</h3><span class="status-badge" id="floor-status"></span></div>
               <p id="floor-subtitle"></p>
               <div class="measurement-metric"><strong id="floor-level">—</strong><span>층 혼잡도</span></div>
               <dl class="floor-facts">
@@ -210,7 +213,7 @@
           <div class="chart-panel">
             <div class="panel-heading"><div><h3>혼잡도 흐름</h3><p class="panel-description" id="chart-series-name"></p></div><span class="muted-label">최근 1시간</span></div>
             <div class="trend-chart" id="trend-chart"></div>
-            <p class="chart-caption">혼잡도 흐름은 5분 간격으로 표시합니다. 1·3층은 예시 데이터입니다.</p>
+            <p class="chart-caption">혼잡도 흐름은 5분 간격으로 표시합니다. 2·3층은 예시 데이터입니다.</p>
           </div>
         </div>
         <div class="pending-panel" id="pending-content" hidden>

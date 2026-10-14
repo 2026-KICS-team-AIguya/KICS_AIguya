@@ -7,13 +7,19 @@ const { execFileSync } = require("node:child_process");
 const root = path.resolve(__dirname, "..");
 const python = process.env.PYTHON || (fs.existsSync(path.join(root, ".venv/Scripts/python.exe")) ? path.join(root, ".venv/Scripts/python.exe") : "python");
 const kioskFixture = JSON.parse(execFileSync(python, ["-B", "-c", "import json; from server.kiosk_analysis import analyze_kiosk; print(json.dumps(analyze_kiosk(12)))"], { cwd: root, encoding: "utf8" }));
+const liveKioskFixture = JSON.parse(execFileSync(python, ["-B", "-c", "import json; from datetime import datetime; from server.kiosk_analysis import analyze_kiosk, SEOUL; print(json.dumps(analyze_kiosk(now=datetime(2026,10,14,12,tzinfo=SEOUL))))"], { cwd: root, encoding: "utf8" }));
 const html = fs.readFileSync(path.join(root, "web/index.html"), "utf8");
 const ids = [...html.matchAll(/\bid="([^"]+)"/g)].map(match => match[1]);
 assert.equal(new Set(ids).size, ids.length);
+assert.match(html, /<details\b[^>]*id="weekly-menu"[^>]*>/);
+assert.ok(!/<details\b[^>]*id="weekly-menu"[^>]*\bopen\b/.test(html));
+assert.ok(!html.includes('id="kiosk-corners"'));
+assert.ok(!html.includes("오늘의 세 코너"));
+assert.ok(html.includes("식당 이용 현황"));
 
 function element(id) {
   return { id, innerHTML: "", textContent: "", clientWidth: 600, clientHeight: 403,
-    hidden: false, disabled: false, offsetWidth: 36, attributes: {}, handlers: {},
+    hidden: false, disabled: false, open: false, offsetWidth: 36, attributes: {}, handlers: {},
     style: { setProperty(key, value) { this[key] = value; } },
     classList: { add() {}, remove() {}, toggle() {} },
     setAttribute(key, value) { this.attributes[key] = value; }, removeAttribute(key) { delete this.attributes[key]; },
@@ -54,14 +60,15 @@ function harness({ lan = false } = {}) {
   const run = source => vm.runInContext(source, context);
   const snapshot = (status = "waiting") => ({
     version: 2, location_id: "sangnok", server_time: clock,
-    sensor_scope: { location_id: "sangnok", floor: 2, link_id: "link_3", mode: "test" },
-    floors: [{ floor: 1, status: "unconnected" }, { floor: 2, status, mode: "test", level: status === "ok" ? "혼잡" : null,
+    sensor_scope: { location_id: "sangnok", floor: 1, link_id: "link_3", mode: "test" },
+    floors: [{ floor: 1, status, mode: "test", level: status === "ok" ? "혼잡" : null,
       confidence: status === "ok" ? .87 : null, timestamp: clock - 5000, progress: "12/24", history: [] },
+      { floor: 2, status: "unconnected" },
       { floor: 3, status: "unconnected" }],
     kiosk: { status: "waiting", recent: null, previous: null, as_of: clock },
   });
   response = snapshot();
-  for (const match of html.matchAll(/<script src="([^"]+)" defer><\/script>/g)) run(fs.readFileSync(path.join(root, "web", match[1]), "utf8"));
+  for (const match of html.matchAll(/<script src="([^"]+)" defer><\/script>/g)) run(fs.readFileSync(path.join(root, "web", match[1].split("?")[0]), "utf8"));
   return { run, nodes, intervals, calls, snapshot, setKiosk(value) { kioskResponse = value; }, failKiosk(value) { kioskFailure = value; }, setKioskFetch(value) { kioskFetch = value; }, setResponse(value) { response = value; }, fail(value) { failure = value; }, advance(ms) { clock += ms; },
     click(id, dataset) { nodes.get(id).handlers.click({ target: { closest: () => ({ dataset }) } }); } };
 }
@@ -71,10 +78,31 @@ async function main() {
   await h.run("refreshDashboard()");
   const node = id => h.nodes.get(id);
   assert.equal(h.run("state.locations.length"), 3);
-  assert.equal(h.run("state.floorId"), 2);
+  assert.equal(h.run("state.floorId"), 1);
+  assert.equal(node("weekly-menu").open, false);
   assert.equal(node("floor-level").textContent, "—");
   assert.equal(node("kiosk-results").hidden, false); // CSI failure does not hide independent kiosk simulation.
   assert.ok(!node("floor-plan").innerHTML.includes("data-zone"));
+
+  // An old backend still assigned to floor 2 must not replace mock floors.
+  const legacyScope = h.snapshot("waiting");
+  legacyScope.sensor_scope.floor = 2;
+  legacyScope.floors[0] = { floor: 1, status: "unconnected" };
+  legacyScope.floors[1] = { floor: 2, status: "waiting" };
+  h.setResponse(legacyScope);
+  await h.run("refreshDashboard()");
+  for (const floor of [2, 3]) {
+    h.click("floor-cards", { floor: String(floor) });
+    assert.equal(node("floor-data-status").textContent, "예시 데이터");
+    assert.ok(["여유", "보통", "혼잡"].includes(node("floor-level").textContent));
+    const card = node("floor-cards").innerHTML.match(new RegExp(`<button[^>]*data-floor="${floor}"[\\s\\S]*?<\\/button>`))[0];
+    assert.ok(card.includes("예시 데이터"));
+    assert.ok(!card.includes("측정 대기"));
+    assert.ok(!card.includes("실시간 혼잡도"));
+    assert.ok(node("trend-chart").innerHTML.includes("<svg"));
+  }
+  h.click("floor-tabs", { floor: "1" });
+  assert.equal(node("floor-level").textContent, "—");
 
   for (const [status, label] of [["calibrating", "측정 준비 중"], ["skipped", "확인 중"], ["stale", "업데이트 지연"]]) {
     h.setResponse(h.snapshot(status));
@@ -89,30 +117,48 @@ async function main() {
   assert.equal(node("floor-data-status").textContent, "실시간 혼잡도");
   assert.ok(!node("floor-cards").innerHTML.includes("테스트"));
   assert.ok(!node("floor-cards").innerHTML.includes("점유율"));
-  for (const floor of [1, 3, 2]) {
+  for (const floor of [2, 3, 1]) {
+    const kioskCalls = h.calls.filter(url => url.includes("kiosk-analysis")).length;
     h.click("floor-cards", { floor: String(floor) });
     assert.equal(h.run("state.floorId"), floor);
-    if (floor !== 2) {
+    if (floor !== 1) {
       assert.equal(node("floor-data-status").textContent, "예시 데이터");
       assert.equal(node("floor-confidence").textContent, "—");
+      assert.equal(node("kiosk-active-content").hidden, true);
+      assert.equal(node("kiosk-pending").hidden, false);
+      assert.ok(node("kiosk-pending-message").textContent.includes(`${floor}층`));
+      assert.equal(node("kiosk-mode").hidden, true);
+      await h.run("refreshKiosk()");
+      assert.equal(h.calls.filter(url => url.includes("kiosk-analysis")).length, kioskCalls);
+    } else {
+      assert.equal(node("kiosk-active-content").hidden, false);
+      assert.equal(node("kiosk-pending").hidden, true);
+      assert.equal(node("kiosk-mode").hidden, false);
     }
   }
 
   const synthetic = h.snapshot("ok");
-  synthetic.floors[1].input_kind = "synthetic";
+  synthetic.floors[0].input_kind = "synthetic";
   h.setResponse(synthetic);
   await h.run("refreshDashboard()");
   assert.equal(node("floor-data-status").textContent, "예시 데이터");
-  synthetic.floors[1].input_kind = "replay";
+  synthetic.floors[0].input_kind = "replay";
   await h.run("refreshDashboard()");
   assert.equal(node("floor-data-status").textContent, "기록 데이터");
 
   await h.run("refreshDashboard()");
   assert.equal(node("kiosk-recent").textContent, kioskFixture.surge_momentum.recent_5m);
   assert.equal(node("kiosk-results").hidden, false);
-  assert.ok(node("kiosk-corners").innerHTML.includes("품절 예상"));
-  assert.ok(node("kiosk-corners").innerHTML.includes("progress"));
+  assert.ok(node("kiosk-sensor").textContent.startsWith("1층"));
   assert.ok(node("kiosk-sensor-source").textContent.includes("별도 자료"));
+  h.setKiosk(liveKioskFixture);
+  await h.run("refreshKiosk()");
+  assert.ok(node("kiosk-asof").textContent.includes("목데이터"));
+  assert.equal(node("kiosk-eating").textContent, liveKioskFixture.staying_estimation.current_eating);
+  assert.ok(node("kiosk-eating").textContent > 0);
+  assert.ok(node("kiosk-eating").textContent <= 120);
+  assert.equal(node("kiosk-recent").textContent, liveKioskFixture.surge_momentum.recent_5m);
+  h.setKiosk(kioskFixture);
   for (const [label, query] of [["12:00", "test_hour=12&test_minute=0"], ["11:30", "test_hour=11&test_minute=30"], ["15:00", "test_hour=15&test_minute=0"], ["실시간", ""]]) {
     node("kiosk-mode").handlers.click();
     await h.run("refreshKiosk()");
@@ -125,16 +171,17 @@ async function main() {
   assert.equal(node("kiosk-retry").hidden, false);
   h.failKiosk(false);
   const malformed = structuredClone(kioskFixture);
-  malformed.corners.special.remaining_stock = -1;
+  malformed.staying_estimation.current_eating = 121;
   h.setKiosk(malformed);
   await h.run("refreshKiosk()");
   assert.equal(node("kiosk-results").hidden, true);
-  const sold = structuredClone(kioskFixture);
-  sold.golden_time_stats.recommended_time = null;
-  for (const c of Object.values(sold.corners)) { c.remaining_stock = 0; c.sold_out = true; }
-  h.setKiosk(sold);
+  const noRecommendation = structuredClone(liveKioskFixture);
+  noRecommendation.golden_time_stats.recommended_time = null;
+  delete noRecommendation.corners;
+  h.setKiosk(noRecommendation);
   await h.run("refreshKiosk()");
-  assert.equal(node("kiosk-golden").textContent, "오늘 준비 수량 소진");
+  assert.equal(node("kiosk-results").hidden, false);
+  assert.equal(node("kiosk-golden").textContent, "발권 흐름을 살펴보세요");
   h.setKiosk(kioskFixture);
   await h.run("refreshKiosk()");
   assert.equal(node("kiosk-results").hidden, false);
@@ -152,23 +199,41 @@ async function main() {
   assert.equal(node("kiosk-briefing").textContent, "new mode");
   h.setKioskFetch(null);
 
+  // Changing floors while a request is pending must hide its late result.
+  h.setKioskFetch(() => new Promise(resolve => pending.push(resolve)));
+  const floorRequest = h.run("refreshKiosk()");
+  h.click("floor-tabs", { floor: "2" });
+  pending.at(-1)({ ok: true, json: async () => kioskFixture });
+  await floorRequest;
+  assert.equal(node("kiosk-active-content").hidden, true);
+  assert.equal(node("kiosk-pending").hidden, false);
+  h.setKioskFetch(null);
+  h.click("floor-tabs", { floor: "1" });
+  await h.run("refreshKiosk()");
+
+  node("weekly-menu").open = true;
+  await h.run("refreshDashboard()");
+  assert.equal(node("weekly-menu").open, true);
+
   h.fail(true);
   await h.run("refreshDashboard()");
   assert.equal(node("floor-status").textContent, "연결 확인 중");
   assert.equal(node("floor-confidence").textContent, "—");
   assert.equal(node("kiosk-results").hidden, false); // CSI failure does not hide independent kiosk simulation.
-  h.click("floor-tabs", { floor: "1" });
+  h.click("floor-tabs", { floor: "2" });
   assert.equal(node("floor-data-status").textContent, "예시 데이터");
   const calls = h.calls.length;
   node("auto-button").handlers.click();
   h.advance(60000);
   h.intervals.find(item => item.delay === 10000).callback();
   assert.equal(h.calls.length, calls);
+  h.click("floor-tabs", { floor: "1" });
 
   for (const location of ["dormitory", "business", "sangnok"]) {
     h.click("location-list", { location });
     assert.equal(h.run("state.locationId"), location);
     assert.equal(node("dining-content").hidden, location !== "sangnok");
+    assert.equal(node("floor-cards").hidden, location !== "sangnok");
     assert.equal(node("kiosk-service").hidden, location !== "sangnok");
     if (location === "business") assert.equal(node("building-title").textContent, "D-plex");
   }

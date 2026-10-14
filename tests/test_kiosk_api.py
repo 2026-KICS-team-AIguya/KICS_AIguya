@@ -15,6 +15,12 @@ class KioskApiTests(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.headers["cache-control"], "no-store")
         self.assertEqual(response.json()["data_source"], "mock")
+        self.assertEqual(response.json()["floor"], 1)
+        live = client.get("/kiosk/comprehensive-analysis")
+        self.assertEqual(live.status_code, 200)
+        self.assertEqual(live.json()["mode"], "random")
+        self.assertTrue(live.json()["operating"])
+        self.assertGreater(live.json()["surge_momentum"]["recent_5m"], 0)
         for query in ("test_hour=24", "test_hour=-1", "test_minute=30", "test_hour=12&test_minute=60", "test_hour=12.5"):
             self.assertEqual(client.get("/kiosk/comprehensive-analysis?" + query).status_code, 422)
 

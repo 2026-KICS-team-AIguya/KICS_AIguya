@@ -1,12 +1,16 @@
 import json
 import unittest
 from datetime import datetime, timedelta, timezone
-from server.kiosk_analysis import analyze_kiosk, CORNERS, timeline
+from server.kiosk_analysis import analyze_kiosk, CORNERS, timeline, live_ticket, MAX_PEOPLE
 
 
 class KioskAnalysisTests(unittest.TestCase):
     def test_noon_story_and_repeatability(self):
         data = analyze_kiosk(12)
+        self.assertEqual(data["floor"], 1)
+        self.assertNotIn("남아", data["summary_briefing"])
+        self.assertNotIn("소진", data["summary_briefing"])
+        self.assertNotIn("품절", data["golden_time_stats"]["tip"])
         self.assertEqual(data, analyze_kiosk(12))
         self.assertTrue(data["surge_momentum"]["is_surging"])
         special = data["corners"]["special"]
@@ -41,15 +45,53 @@ class KioskAnalysisTests(unittest.TestCase):
                 data = analyze_kiosk(hour, minute)
                 staying = data["staying_estimation"]
                 self.assertTrue(0 <= staying["leaving_in_10m"] <= staying["current_eating"])
+                self.assertLessEqual(staying["current_eating"], MAX_PEOPLE)
                 json.dumps(data, allow_nan=False)
 
     def test_time_zone_and_demo_clock(self):
         now = datetime(2026, 10, 14, 14, 50, tzinfo=timezone.utc)
-        self.assertEqual(analyze_kiosk(now=now)["simulated_hour"], 23)
+        self.assertEqual(analyze_kiosk(now=now)["as_of"], "2026-10-14T23:50:00+09:00")
         data = analyze_kiosk(11, 30, now)
         self.assertEqual(data["as_of"], "2026-10-14T11:30:00+09:00")
         later = analyze_kiosk(11, 30, now + timedelta(days=1))
         self.assertEqual(data["corners"], later["corners"])
+
+    def test_live_clock_works_at_night_without_rewriting_history(self):
+        now = datetime(2026, 10, 14, 23, 45, tzinfo=timezone(timedelta(hours=9)))
+        first = analyze_kiosk(now=now)
+        second = analyze_kiosk(now=now + timedelta(seconds=9))
+        self.assertEqual(first["mode"], "random")
+        self.assertEqual(first["as_of"], "2026-10-14T23:45:00+09:00")
+        self.assertTrue(first["operating"])
+        self.assertGreater(first["surge_momentum"]["recent_5m"], 0)
+        self.assertGreater(first["staying_estimation"]["current_eating"], 0)
+        self.assertEqual(first["staying_estimation"], second["staying_estimation"])
+        self.assertEqual(first["surge_momentum"], second["surge_momentum"])
+        live_ticket.cache_clear()  # A restart/new serverless instance reproduces the same events.
+        self.assertEqual(first, analyze_kiosk(now=now))
+        self.assertLessEqual(first["staying_estimation"]["leaving_in_10m"], first["staying_estimation"]["current_eating"])
+
+    def test_live_flow_is_bounded_and_continuous_across_midnight(self):
+        now = datetime(2026, 10, 14, 23, 30, tzinfo=timezone(timedelta(hours=9)))
+        previous = analyze_kiosk(now=now)
+        populations = set()
+        for step in range(1, 361):
+            current = analyze_kiosk(now=now + timedelta(seconds=step * 10))
+            s, p = current["staying_estimation"], previous["staying_estimation"]
+            self.assertTrue(0 <= s["leaving_in_10m"] <= s["current_eating"] <= MAX_PEOPLE)
+            self.assertLessEqual(abs(s["current_eating"] - p["current_eating"]), 1)
+            self.assertLessEqual(abs(current["surge_momentum"]["recent_5m"] - previous["surge_momentum"]["recent_5m"]), 1)
+            self.assertEqual(s["total_5m_trend"][-1], current["surge_momentum"]["recent_5m"])
+            self.assertEqual(s["total_5m_trend"][-2], current["surge_momentum"]["prev_5m"])
+            populations.add(s["current_eating"])
+            previous = current
+        self.assertGreater(len(populations), 1)
+
+    def test_live_five_minute_windows_shift_without_changing_past_events(self):
+        now = datetime(2026, 10, 14, 12, tzinfo=timezone(timedelta(hours=9)))
+        first = analyze_kiosk(now=now)
+        second = analyze_kiosk(now=now + timedelta(minutes=5))
+        self.assertEqual(first["staying_estimation"]["total_5m_trend"][1:], second["staying_estimation"]["total_5m_trend"][:-1])
 
     def test_closed_quiet_and_zero_baseline(self):
         night = analyze_kiosk(0)

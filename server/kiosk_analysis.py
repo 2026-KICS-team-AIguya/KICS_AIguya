@@ -1,10 +1,14 @@
-"""Deterministic, database-free cafeteria simulation. Never sensor observations."""
+"""Continuous mock ticket flow and repeatable demo scenarios, separate from CSI."""
 from datetime import datetime, timedelta, timezone
+from functools import lru_cache
 import math
 import random
 
 SEOUL = timezone(timedelta(hours=9))
 OPEN, CLOSE = 9 * 60, 19 * 60
+MAX_PEOPLE = 120
+TICK_SECONDS = 10
+MEAL_TICKS = 20 * 60 // TICK_SECONDS
 CORNERS = {
     "korean": {"name": "한식", "menu": "따뜻한 백반", "service_rate": 5, "daily_limit": 500},
     "special": {"name": "일품", "menu": "치즈돈까스", "service_rate": 2, "daily_limit": 250},
@@ -52,6 +56,48 @@ def timeline(day, key):
     return tickets, served, queues, stocks
 
 
+@lru_cache(maxsize=4096)
+def live_ticket(tick):
+    """An immutable ticket event: at most one per 10s, with slowly varying demand."""
+    if tick % 3 == 0:
+        return 1
+    probability = .5 + .2 * math.sin(tick / 180) + .08 * math.sin(tick / 60)
+    return int(random.Random(f"kiosk-flow-v2:{tick}").random() < probability)
+
+
+def live_population(tick):
+    # Start eating 30s after a ticket, then stay 20m. At most 120 overlapping meals.
+    return sum(live_ticket(t - 3) for t in range(tick - MEAL_TICKS, tick))
+
+
+def live_analysis(effective):
+    tick = int(effective.timestamp()) // TICK_SECONDS
+    totals = [sum(live_ticket(t) for t in range(tick - (i + 1) * 30, tick - i * 30)) for i in range(6)]
+    recent, previous = totals[:2]
+    staying = live_population(tick)
+    leaving = sum(live_ticket(t - 3) for t in range(tick - MEAL_TICKS, tick - MEAL_TICKS // 2))
+    surge = round((recent - previous) / previous * 100, 1)
+    recommended = None
+    if staying >= 90:
+        for minutes in range(10, 46, 5):
+            if live_population(tick + minutes * 6) <= staying * .9:
+                start = datetime.fromtimestamp(tick * TICK_SECONDS, SEOUL) + timedelta(minutes=minutes)
+                recommended = f"{start:%H:%M} ~ {start + timedelta(minutes=10):%H:%M}"
+                break
+    briefing = f"최근 5분 동안 {recent}건이 발권됐어요. "
+    briefing += "직전보다 발권이 늘고 있어요. 조금 여유를 두고 방문해 보세요." if surge >= 25 else "발권 흐름이 비교적 일정하게 이어지고 있어요."
+    return {
+        "version": 1, "data_source": "mock", "location_id": "sangnok", "floor": 1,
+        "mode": "random", "as_of": effective.isoformat(), "simulated_hour": effective.hour,
+        "operating": True, "operating_hours": "09:00 ~ 19:00", "summary_briefing": briefing,
+        "staying_estimation": {"current_eating": staying, "leaving_in_10m": leaving, "total_5m_trend": totals[::-1]},
+        "surge_momentum": {"recent_5m": recent, "prev_5m": previous, "surge_rate_percent": surge, "is_surging": surge >= 25},
+        "corners": {},
+        "golden_time_stats": {"diff_vs_usual_percent": round((recent + previous - 40) / 40 * 100, 1), "usual_10m_avg": 40,
+            "recommended_time": recommended, "tip": "가상 이용 인원이 줄어드는 시간이에요." if recommended else "최근 발권 흐름을 보며 방문 시간을 골라보세요."},
+    }
+
+
 def analyze_kiosk(test_hour=None, test_minute=None, now=None):
     if test_hour is not None and (type(test_hour) is not int or not 0 <= test_hour <= 23):
         raise ValueError("test_hour는 0~23 정수여야 합니다.")
@@ -60,12 +106,14 @@ def analyze_kiosk(test_hour=None, test_minute=None, now=None):
     now = now or datetime.now(SEOUL)
     if now.tzinfo is None:
         now = now.replace(tzinfo=SEOUL)
-    effective = now.astimezone(SEOUL).replace(second=0, microsecond=0)
+    effective = now.astimezone(SEOUL).replace(microsecond=0)
+    if test_hour is None:
+        return live_analysis(effective)
     if test_hour is not None:
-        effective = effective.replace(hour=test_hour, minute=test_minute or 0)
-    minute = effective.hour * 60 + effective.minute
-    # Fixed demo day gives repeatable presentation scenarios on every calendar day.
-    day = "demo" if test_hour is not None else effective.date().isoformat()
+        effective = effective.replace(hour=test_hour, minute=test_minute or 0, second=0)
+        simulation = effective
+        day = "demo"
+    minute = simulation.hour * 60 + simulation.minute
     series = {key: timeline(day, key) for key in CORNERS}
     histories, corners = {}, {}
     staying = leaving = 0.
@@ -96,7 +144,7 @@ def analyze_kiosk(test_hour=None, test_minute=None, now=None):
     recent, previous = totals[:2]
     surge = round((recent - previous) / previous * 100, 1) if previous else (0. if not recent else None)
     current = recent + previous
-    usual = 85 if effective.hour == 12 else 50 if effective.hour in (11, 13, 18) else 20
+    usual = 85 if simulation.hour == 12 else 50 if simulation.hour in (11, 13, 18) else 20
     diff = round((current - usual) / usual * 100, 1) if operating else None
     available = [c for c in corners.values() if not c["sold_out"]]
     best = min(available, key=lambda c: c["wait_time_min"], default=None)
@@ -112,26 +160,25 @@ def analyze_kiosk(test_hour=None, test_minute=None, now=None):
     recommended = None
     if better and current_wait >= 2 and better[0] <= current_wait * .7:
         start = better[1]
-        recommended = f"{start // 60:02}:{start % 60:02} ~ {min(start + 10, CLOSE) // 60:02}:{min(start + 10, CLOSE) % 60:02}"
+        start_at = effective + timedelta(minutes=start - minute)
+        end_at = effective + timedelta(minutes=min(start + 10, CLOSE) - minute)
+        recommended = f"{start_at:%H:%M} ~ {end_at:%H:%M}"
     if not operating:
         briefing = "지금은 시연 설정의 운영시간 밖이에요. 점심 피크를 선택해 발권 흐름과 코너별 대기를 살펴보세요."
     elif not best:
         briefing = "오늘 준비한 가상 메뉴가 모두 소진되었어요. 다른 시연 시간을 선택해 주세요."
     else:
-        intro = f"최근 발권이 {surge:g}% 늘었어요. " if surge is not None and surge >= 25 else "발권 흐름과 코너별 대기를 함께 살펴보세요. "
-        briefing = intro + f"지금은 {best['name']} 코너의 예상 대기가 {best['wait_time_min']:g}분으로 가장 짧아요."
-        urgent = [c for c in available if c["mins_to_sold_out"] is not None and c["mins_to_sold_out"] <= 20]
-        if urgent:
-            c = min(urgent, key=lambda c: c["mins_to_sold_out"])
-            briefing += f" {c['name']}은 {c['remaining_stock']}개 남아 약 {c['mins_to_sold_out']}분 뒤 소진될 수 있어요."
+        briefing = f"최근 5분 동안 {recent}건이 발권됐어요. "
+        briefing += "조금 여유를 두고 방문해 보세요." if surge is not None and surge >= 25 else "발권 흐름을 보며 방문 시간을 골라보세요."
+    people = min(MAX_PEOPLE, round(staying))
     return {
-        "version": 1, "data_source": "mock", "location_id": "sangnok", "floor": 2,
-        "mode": "demo" if test_hour is not None else "clock", "as_of": effective.isoformat(),
-        "simulated_hour": effective.hour, "operating": operating, "operating_hours": "09:00 ~ 19:00",
+        "version": 1, "data_source": "mock", "location_id": "sangnok", "floor": 1,
+        "mode": "demo" if test_hour is not None else "random", "as_of": effective.isoformat(),
+        "simulated_hour": simulation.hour, "operating": operating, "operating_hours": "09:00 ~ 19:00",
         "summary_briefing": briefing,
-        "staying_estimation": {"current_eating": round(staying), "leaving_in_10m": min(round(staying), round(leaving)), "total_5m_trend": totals[::-1]},
+        "staying_estimation": {"current_eating": people, "leaving_in_10m": min(people, round(leaving)), "total_5m_trend": totals[::-1]},
         "surge_momentum": {"recent_5m": recent, "prev_5m": previous, "surge_rate_percent": surge, "is_surging": surge is not None and surge >= 25},
         "corners": corners,
         "golden_time_stats": {"diff_vs_usual_percent": diff, "usual_10m_avg": usual if operating else None,
-            "recommended_time": recommended, "tip": "판매 중인 코너 기준 · 인기 메뉴는 먼저 품절될 수 있어요." if recommended else "운영시간 밖이에요." if not operating else "재고가 있는 코너를 지금 비교해 보세요."},
+            "recommended_time": recommended, "tip": "예상 배식 대기가 줄어드는 시간이에요." if recommended else "운영시간 밖이에요." if not operating else "최근 발권 흐름을 보며 방문 시간을 골라보세요."},
     }
