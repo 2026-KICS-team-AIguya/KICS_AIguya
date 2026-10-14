@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-N=8~30명 구간 mock(synthetic) 데이터 생성.
+N=0~30명 구간 mock(synthetic) 데이터 생성.
 
 방법:
 1. 실측(data/ai/labeled_real_final.csv, N=4~7, session별)을 anchor로 삼는다.
@@ -9,15 +9,18 @@ N=8~30명 구간 mock(synthetic) 데이터 생성.
    csi_temporal_diff_mean, csi_temporal_diff_std, csi_amp_range, csi_rssi_std, csi_amp_mean,
    csi_rssi_mean. N=21~30(CountFi 실측 범위 밖)은 N=20 값에서 보합(근거 없는 외삽 금지).
 3. CountFi 대응이 없는 feature(csi_amp_std, csi_amp_var, csi_distortion_cv_pct)는
-   실측 session 내부 4~7명 선형 추세로 외삽(N>20부터 기울기 감쇠).
+   실측 session 내부 4~7명 선형 추세로 외삽(N>20부터 기울기 감쇠, N<4는 같은 기울기로 내림).
 4. "가상 session" 24개를 만든다 — baseline/scale을 실측 2개 session(1658, 1933) 사이
    (+-20~30% 확장 구간)에서 랜덤 샘플링해, 모델이 "환경 2개를 암기"하지 않고
    "환경이 달라져도 유지되는 패턴"을 배우도록 유도한다(domain randomization).
    주의: 이 분포 자체는 실측 2개 지점만으로 추정한 근사치 — 결과 해석 시 반드시 캐비어트할 것.
-5. 노이즈: 실측 표준편차 재사용 + 4개 feature(csi_rssi_mean, csi_temporal_diff_mean,
+5. 노이즈: 실측 "같은 session·같은 인원" 안의 표준편차(window 간 순수 노이즈) 중앙값 + 4개 feature(csi_rssi_mean, csi_temporal_diff_mean,
    csi_amp_std, csi_amp_var)는 CountFi에서 확인된 "N이 커질수록 noise도 커지는" 경향을
    배율로 반영. 진폭 계열은 곱셈 jitter(~N(1,0.05))도 추가.
 6. 결측 흉내: 10% 확률로 저품질 window(packet<30 -> candidate feature blank).
+7. calibration 구간: 가상 session마다 시작 인원(0~4명)을 정해 그 상태의 유효 window
+   CALIBRATION_WINDOWS개를 is_calibration=True로 추가한다. 학습은 이 구간으로 정규화한다
+   (실서비스에서 "빈 방에서 시작해 처음 2분으로 calibration"하는 절차와 같게 맞추기 위함).
 
 [개발 환경 안내] CountFi feature-selection 산출물(countfi_feature_candidates_2s.csv)은
 용량 문제로 git/데이터폴더에 포함하지 않았다. COUNTFI_CANDIDATES_PATH를 본인 환경의
@@ -25,12 +28,17 @@ N=8~30명 구간 mock(synthetic) 데이터 생성.
 """
 
 import os
-import pandas as pd
+import sys
+
 import numpy as np
+import pandas as pd
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from config import CALIBRATION_WINDOWS  # noqa: E402
 
 REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 REAL_LABELED_PATH = os.path.join(REPO_ROOT, "data", "ai", "labeled_real_final.csv")
-OUT_PATH = os.path.join(REPO_ROOT, "data", "ai", "mock_data_n8_30.csv")
+OUT_PATH = os.path.join(REPO_ROOT, "data", "ai", "mock_data_n0_30.csv")
 
 # 환경변수 COUNTFI_CANDIDATES_PATH로 덮어쓸 수 있음 (없으면 아래 기본 경로)
 COUNTFI_CANDIDATES_PATH = os.environ.get(
@@ -60,7 +68,8 @@ NOISE_SCALED = {
 }
 
 REAL_SESSIONS = ["1658", "1933"]  # N=4~7 전 구간 존재하는 두 세션(anchor 기준점)
-N_SYNTH_RANGE = list(range(8, 31))
+N_SYNTH_RANGE = list(range(0, 31))
+CALIB_START_N_MAX = 4  # calibration 시작 인원 0~4명 (빈 방 또는 소수)
 N_PSEUDO = 24
 N_PER_PSEUDO_PER_N = 8
 
@@ -100,12 +109,19 @@ def main():
             feat: sdf.groupby("n_people")[feat].mean() for feat in ALL_FEATURES
         }
 
-    real_noise_level = {feat: real_anchor[feat].std() for feat in ALL_FEATURES}
+    # 인원·session 차이가 섞이지 않은 window 간 노이즈. 이걸로 만들어야 calibration std가 실서비스와 같은 규모가 된다
+    real_noise_level = {
+        feat: real_anchor.groupby(["session", "n_people"])[feat].std().median()
+        for feat in ALL_FEATURES
+    }
     real_packet_pool = real_anchor[["csi_packet_count", "csi_missing_rate"]].dropna()
 
     long_rows = []
+    calib_start = {}
     for p in range(N_PSEUDO):
         pseudo_id = f"mock_synth_{p:02d}"
+        start_n = int(rng.integers(0, CALIB_START_N_MAX + 1))
+        calib_start[pseudo_id] = start_n
         for feat in ALL_FEATURES:
             anchor4_vals = [real_stats[s][feat].loc[4] for s in REAL_SESSIONS]
             anchor7_vals = [real_stats[s][feat].loc[7] for s in REAL_SESSIONS]
@@ -137,7 +153,10 @@ def main():
                 if feat in NOISE_SCALED:
                     noise_std *= noise_scale_factor(NOISE_SCALED[feat], n)
 
-                for _ in range(N_PER_PSEUDO_PER_N):
+                n_windows = N_PER_PSEUDO_PER_N + (
+                    CALIBRATION_WINDOWS if n == start_n else 0
+                )
+                for _ in range(n_windows):
                     val = rng.normal(val_mean, noise_std)
                     if feat in (
                         "csi_amp_mean",
@@ -146,7 +165,7 @@ def main():
                         "csi_amp_var",
                     ):
                         val *= rng.normal(1.0, 0.05)
-                    if feat == "csi_amp_var":
+                    if feat in ("csi_amp_var", "csi_amp_std", "csi_distortion_cv_pct"):
                         val = max(val, 0.0)
                     long_rows.append(
                         {
@@ -163,11 +182,15 @@ def main():
         per_feat = {
             feat: sub[sub["feature"] == feat]["value"].tolist() for feat in ALL_FEATURES
         }
-        for i in range(N_PER_PSEUDO_PER_N):
+        n_calib = CALIBRATION_WINDOWS if n == calib_start[pid] else 0
+        for i in range(len(per_feat[ALL_FEATURES[0]])):
             row = {feat: per_feat[feat][i] for feat in ALL_FEATURES}
             row["session_baseline"] = pid
             row["n_people"] = n
-            if rng.random() < 0.10:
+            row["is_calibration"] = (
+                i < n_calib
+            )  # calibration window는 결측 없이 유효해야 함
+            if not row["is_calibration"] and rng.random() < 0.10:
                 pc = int(rng.integers(5, 29))
                 row["csi_packet_count"] = pc
                 row["csi_missing_rate"] = round(1.0 - pc / 180.0, 4)
@@ -194,7 +217,8 @@ def main():
     mock_df.to_csv(OUT_PATH, index=False, encoding="utf-8-sig")
     print(f"Saved: {OUT_PATH}")
     print(
-        f"총 row: {len(mock_df)} (가상 session {N_PSEUDO}개 x N값 23개 x {N_PER_PSEUDO_PER_N}개)"
+        f"총 row: {len(mock_df)} (가상 session {N_PSEUDO}개 x N값 {len(N_SYNTH_RANGE)}개 x "
+        f"{N_PER_PSEUDO_PER_N}개 + calibration {CALIBRATION_WINDOWS}개/session)"
     )
 
 
