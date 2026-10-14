@@ -3,7 +3,8 @@
 AI 모델 entry point.
 
 - 학습 파이프라인: python ai/main.py train
-  (scripts/build_labels.py -> generate_mock_data.py -> train_model.py 순서 실행)
+  (scripts/build_labels.py -> train_real_model.py 순서 실행. generate_mock_data.py / train_model.py는
+   이전 synthetic 방식으로 보관만 한다 — ai/docs/01_model_experiment_report.md 5-2절)
 - 서버 통합용: `from ai.main import CongestionPredictor` 후 5초 feature 행마다 update() 호출.
   입출력 형식은 ai/docs/02_inference_interface.md 참고.
 
@@ -15,6 +16,7 @@ update()는 link별로 처음 CALIBRATION_WINDOWS개 window를 모아 baseline�
 
 import json
 import math
+from collections import deque
 import os
 import subprocess
 import sys
@@ -26,6 +28,7 @@ from config import (  # noqa: E402
     CALIBRATION_WINDOWS,
     FEATURES,
     LEVELS,
+    SMOOTHING_WINDOWS,
     apply_baseline,
     fit_baseline,
 )
@@ -49,7 +52,12 @@ def _to_float(value):
 class CongestionPredictor:
     """link별 calibration(baseline 추정) -> session 정규화 -> 혼잡도 예측을 한 번에 처리하는 wrapper."""
 
-    def __init__(self, model_path=MODEL_PATH, calibration_windows=CALIBRATION_WINDOWS):
+    def __init__(
+        self,
+        model_path=MODEL_PATH,
+        calibration_windows=CALIBRATION_WINDOWS,
+        smoothing_windows=SMOOTHING_WINDOWS,
+    ):
         if not os.path.exists(model_path):
             raise FileNotFoundError(
                 f"모델 파일이 없습니다: {model_path}\n"
@@ -59,6 +67,8 @@ class CongestionPredictor:
         self.calibration_windows = calibration_windows
         self._calib_buffer = {}  # link_id -> calibration 구간 feature 벡터 list
         self._baseline = {}  # link_id -> {"mean": [...], "std": [...]}
+        self.smoothing_windows = smoothing_windows
+        self._recent = {}  # link_id -> 최근 window 확률 (화면 등급 안정화용)
 
     @staticmethod
     def check_schema(row: dict):
@@ -96,14 +106,18 @@ class CongestionPredictor:
             self._baseline[link_id] = {"mean": mean.tolist(), "std": std.tolist()}
             del self._calib_buffer[link_id]
 
-        proba = self._predict_proba(values, self._baseline[link_id])
+        window_proba = self._predict_proba(values, self._baseline[link_id])
+        recent = self._recent.setdefault(link_id, deque(maxlen=self.smoothing_windows))
+        recent.append(window_proba)
+        proba = {lv: sum(p[lv] for p in recent) / len(recent) for lv in LEVELS}
         level = max(proba, key=proba.get)
         return {
             **result,
             "status": "ok",
             "level": level,
             "confidence": proba[level],
-            "proba": proba,
+            "proba": proba,  # 최근 smoothing_windows개 평균
+            "window_proba": window_proba,  # 이번 5초 window만의 확률
         }
 
     def _predict_proba(self, values, baseline) -> dict:
@@ -116,9 +130,11 @@ class CongestionPredictor:
         if link_id is None:
             self._calib_buffer.clear()
             self._baseline.clear()
+            self._recent.clear()
         else:
             self._calib_buffer.pop(link_id, None)
             self._baseline.pop(link_id, None)
+            self._recent.pop(link_id, None)
 
     def save_calibration(self, path):
         """서비스 재시작 시 calibration을 다시 하지 않도록 baseline을 저장."""
@@ -139,11 +155,12 @@ class CongestionPredictor:
             )
         self._baseline = saved["baseline"]
         self._calib_buffer.clear()
+        self._recent.clear()
 
 
 def run_pipeline():
-    """build_labels -> generate_mock_data -> train_model 순서로 전체 재실행."""
-    for script in ["build_labels.py", "generate_mock_data.py", "train_model.py"]:
+    """build_labels -> train_real_model 순서로 전체 재실행."""
+    for script in ["build_labels.py", "train_real_model.py"]:
         path = os.path.join(SCRIPTS_DIR, script)
         print(f"\n{'=' * 60}\n실행: {script}\n{'=' * 60}")
         subprocess.run([sys.executable, path], check=True)
@@ -154,7 +171,5 @@ if __name__ == "__main__":
         run_pipeline()
     else:
         print("사용법: python ai/main.py train")
-        print(
-            "  (build_labels.py -> generate_mock_data.py -> train_model.py 순서로 전체 파이프라인 실행)"
-        )
+        print("  (build_labels.py -> train_real_model.py 순서로 전체 파이프라인 실행)")
         print("서버에서 쓸 때는 `from ai.main import CongestionPredictor` 로 import.")
