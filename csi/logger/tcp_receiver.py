@@ -18,8 +18,14 @@ from raw_logger import (
     parse_csi_line,
 )
 
+import sys
+import urllib.request
+import urllib.error
+import numpy as np
+
 DEFAULT_HOST = "0.0.0.0"
 DEFAULT_PORT = 5001
+DEFAULT_INGEST_URL = "http://127.0.0.1:8000/ingest"
 
 WINDOW_MS = 5_000
 FLUSH_INTERVAL_SECONDS = 1.0
@@ -36,6 +42,31 @@ VALID_LINK_IDS = {
 }
 DEFAULT_1TO4_LINKS = {"link_1", "link_2", "link_3", "link_4"}
 
+FEATURE_FIELDS = [
+    "timestamp",
+    "link_id",
+    "csi_packet_count",
+    "csi_missing_rate",
+    "csi_rssi_mean",
+    "csi_amp_mean",
+    "csi_amp_std",
+    "csi_amp_var",
+    "csi_distortion_cv_pct",
+    "csi_expected_packet_count",
+    "csi_id_gap_count",
+    "csi_received_row_count",
+    "csi_duplicate_count",
+    "csi_reset_count",
+    "csi_over_expected_count",
+    # Candidate Features 6개
+    "csi_sc_corr_mean",
+    "csi_temporal_var_mean",
+    "csi_temporal_diff_mean",
+    "csi_temporal_diff_std",
+    "csi_amp_range",
+    "csi_rssi_std",
+]
+
 STOP_RECORD = object()
 
 
@@ -48,6 +79,7 @@ class PacketRecord:
     rssi: int = -50
     noise_floor: int = -90
     mean_amplitude: float = 0.0
+    cand_amp: np.ndarray | None = None
 
 
 @dataclass(frozen=True)
@@ -72,6 +104,12 @@ class WindowStats:
     amp_sum: float = 0.0
     amp_sq_sum: float = 0.0
     amp_count: int = 0
+
+    # Candidate Features (6개) 계산용 데이터 (중복 packet_id 제외)
+    cand_seen_ids: set[int] = field(default_factory=set)
+    cand_packet_ids: list[int] = field(default_factory=list)
+    cand_amps: list[np.ndarray] = field(default_factory=list)
+    cand_rssis: list[int] = field(default_factory=list)
 
 
 @dataclass
@@ -273,6 +311,20 @@ def next_grid_start_ms(epoch_ms: int) -> int:
     return ((epoch_ms + WINDOW_MS - 1) // WINDOW_MS) * WINDOW_MS
 
 
+_packet_amplitudes_fn = None
+_window_features_fn = None
+
+
+def _load_candidate_fns():
+    global _packet_amplitudes_fn, _window_features_fn
+    if _packet_amplitudes_fn is None or _window_features_fn is None:
+        sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "processing"))
+        from candidate_features import packet_amplitudes, window_features
+        _packet_amplitudes_fn = packet_amplitudes
+        _window_features_fn = window_features
+    return _packet_amplitudes_fn, _window_features_fn
+
+
 def update_window_stats(
     stats: WindowStats,
     packet_id: int,
@@ -280,6 +332,7 @@ def update_window_stats(
     last_packet_ids: dict[str, int],
     rssi: int = -50,
     mean_amplitude: float = 0.0,
+    cand_amp: np.ndarray | None = None,
 ) -> None:
     stats.received_rows += 1
 
@@ -297,6 +350,13 @@ def update_window_stats(
         stats.amp_sum += mean_amplitude
         stats.amp_sq_sum += mean_amplitude * mean_amplitude
         stats.amp_count += 1
+
+    # Candidate Features 6개용 데이터 누적 (중복 packet_id 제외)
+    if cand_amp is not None and packet_id not in stats.cand_seen_ids:
+        stats.cand_seen_ids.add(packet_id)
+        stats.cand_packet_ids.append(packet_id)
+        stats.cand_amps.append(cand_amp)
+        stats.cand_rssis.append(rssi)
 
     previous_id = last_packet_ids.get(link_id)
     if previous_id is None:
@@ -319,12 +379,49 @@ def update_window_stats(
         last_packet_ids[link_id] = packet_id
 
 
+def ingest_worker(
+    ingest_queue: Queue,
+    ingest_url: str,
+    stop_event: threading.Event,
+) -> None:
+    """5초마다 완성된 feature JSON을 백엔드 /ingest로 HTTP POST 전송하는 비동기 워커."""
+    last_warn_time = 0.0
+    while not stop_event.is_set():
+        try:
+            item = ingest_queue.get(timeout=0.5)
+        except Empty:
+            continue
+
+        if item is STOP_RECORD:
+            break
+
+        try:
+            body = json.dumps(item).encode("utf-8")
+            req = urllib.request.Request(
+                ingest_url,
+                data=body,
+                headers={"Content-Type": "application/json"},
+                method="POST",
+            )
+            with urllib.request.urlopen(req, timeout=1.5):
+                pass
+        except Exception as exc:
+            now = time.monotonic()
+            if now - last_warn_time >= 5.0:
+                print(
+                    f"[INGEST WARN] Failed to send window to {ingest_url}: {exc}",
+                    file=sys.stderr,
+                )
+                last_warn_time = now
+
+
 def write_feature_window(
     writer: csv.writer,
     window_start: int,
     active_links: tuple[str, ...],
     expected_packet_count: int,
     windows: dict[tuple[int, str], WindowStats],
+    ingest_queue: Queue | None = None,
 ) -> None:
     for link_id in active_links:
         stats = windows.pop((window_start, link_id), WindowStats())
@@ -368,6 +465,21 @@ def write_feature_window(
             csi_amp_std = 0.0
             csi_distortion_cv = 0.0
 
+        # Candidate 6개 feature 계산 (candidate_features.py 호출)
+        _, window_features_fn = _load_candidate_fns()
+        cand_results = window_features_fn(
+            stats.cand_packet_ids,
+            stats.cand_amps,
+            stats.cand_rssis,
+        )
+        # cand_results = [n, pair_count, sc_corr_mean, temporal_var_mean, temporal_diff_mean, temporal_diff_std, amp_range, rssi_std]
+        cand_sc_corr_mean = cand_results[2]
+        cand_temporal_var_mean = cand_results[3]
+        cand_temporal_diff_mean = cand_results[4]
+        cand_temporal_diff_std = cand_results[5]
+        cand_amp_range = cand_results[6]
+        cand_rssi_std = cand_results[7]
+
         writer.writerow(
             [
                 window_start,
@@ -385,8 +497,48 @@ def write_feature_window(
                 stats.duplicate_count,
                 stats.reset_count,
                 over_expected_count,
+                cand_sc_corr_mean,
+                cand_temporal_var_mean,
+                cand_temporal_diff_mean,
+                cand_temporal_diff_std,
+                cand_amp_range,
+                cand_rssi_std,
             ]
         )
+
+        if ingest_queue is not None:
+            def _to_float_or_none(v):
+                if v == "" or v is None:
+                    return None
+                try:
+                    return float(v)
+                except (ValueError, TypeError):
+                    return None
+
+            payload = {
+                "timestamp": window_start,
+                "source": "csi",
+                "identifier": link_id,
+                "features": {
+                    "csi_packet_count": packet_count,
+                    "csi_missing_rate": round(missing_rate, 6),
+                    "csi_rssi_mean": _to_float_or_none(round(csi_rssi_mean, 2)) if stats.rssi_count > 0 else None,
+                    "csi_amp_mean": _to_float_or_none(round(csi_amp_mean, 4)) if stats.amp_count > 0 else None,
+                    "csi_amp_std": _to_float_or_none(round(csi_amp_std, 4)) if stats.amp_count > 0 else None,
+                    "csi_amp_var": _to_float_or_none(round(csi_amp_var, 4)) if stats.amp_count > 0 else None,
+                    "csi_distortion_cv_pct": _to_float_or_none(round(csi_distortion_cv, 2)) if stats.amp_count > 0 else None,
+                    "csi_sc_corr_mean": _to_float_or_none(cand_sc_corr_mean),
+                    "csi_temporal_var_mean": _to_float_or_none(cand_temporal_var_mean),
+                    "csi_temporal_diff_mean": _to_float_or_none(cand_temporal_diff_mean),
+                    "csi_temporal_diff_std": _to_float_or_none(cand_temporal_diff_std),
+                    "csi_amp_range": _to_float_or_none(cand_amp_range),
+                    "csi_rssi_std": _to_float_or_none(cand_rssi_std),
+                },
+            }
+            try:
+                ingest_queue.put_nowait(payload)
+            except Exception:
+                pass
 
 
 def storage_loop(
@@ -395,6 +547,7 @@ def storage_loop(
     feature_path: Path,
     active_links: tuple[str, ...],
     expected_pps: float,
+    ingest_queue: Queue | None = None,
 ) -> None:
     raw_path.parent.mkdir(parents=True, exist_ok=True)
     feature_path.parent.mkdir(parents=True, exist_ok=True)
@@ -441,25 +594,7 @@ def storage_loop(
             ]
         )
 
-        feature_writer.writerow(
-            [
-                "timestamp",
-                "link_id",
-                "csi_packet_count",
-                "csi_missing_rate",
-                "csi_rssi_mean",
-                "csi_amp_mean",
-                "csi_amp_std",
-                "csi_amp_var",
-                "csi_distortion_cv_pct",
-                "csi_expected_packet_count",
-                "csi_id_gap_count",
-                "csi_received_row_count",
-                "csi_duplicate_count",
-                "csi_reset_count",
-                "csi_over_expected_count",
-            ]
-        )
+        feature_writer.writerow(FEATURE_FIELDS)
 
         while True:
             try:
@@ -508,6 +643,7 @@ def storage_loop(
                         last_packet_ids=last_packet_ids,
                         rssi=record.rssi,
                         mean_amplitude=record.mean_amplitude,
+                        cand_amp=record.cand_amp,
                     )
 
             now_monotonic = time.monotonic()
@@ -527,6 +663,7 @@ def storage_loop(
                         active_links=active_links,
                         expected_packet_count=expected_packet_count,
                         windows=windows,
+                        ingest_queue=ingest_queue,
                     )
                     next_window_to_write += WINDOW_MS
 
@@ -542,6 +679,7 @@ def storage_worker(
     expected_pps: float,
     stop_event: threading.Event,
     error_queue: Queue,
+    ingest_queue: Queue | None = None,
 ) -> None:
     try:
         storage_loop(
@@ -550,6 +688,7 @@ def storage_worker(
             feature_path=feature_path,
             active_links=active_links,
             expected_pps=expected_pps,
+            ingest_queue=ingest_queue,
         )
     except Exception as exc:
         error_queue.put(exc)
@@ -679,6 +818,8 @@ def handle_client(
                     # Amplitude feature calculation
                     csi_str = row[24] if len(row) > 24 else ""
                     mean_amp = calculate_packet_mean_amplitude(csi_str)
+                    packet_amplitudes_fn, _ = _load_candidate_fns()
+                    cand_amp = packet_amplitudes_fn(csi_str)
 
                     record = PacketRecord(
                         host_epoch_ms=host_epoch_ms,
@@ -688,6 +829,7 @@ def handle_client(
                         rssi=rssi,
                         noise_floor=noise,
                         mean_amplitude=mean_amp,
+                        cand_amp=cand_amp,
                     )
 
                     if not enqueue_record(
@@ -862,6 +1004,18 @@ def main() -> None:
         help="데이터 저장 기본 디렉토리 (기본값: data/csi)",
     )
 
+    parser.add_argument(
+        "--ingest-url",
+        default=DEFAULT_INGEST_URL,
+        help=f"AI 서버 ingest 엔드포인트 URL (기본값: {DEFAULT_INGEST_URL})",
+    )
+
+    parser.add_argument(
+        "--no-ingest",
+        action="store_true",
+        help="서버 HTTP POST 전송 비활성화 (CSV 저장만 수행)",
+    )
+
     args = parser.parse_args()
 
     if args.expected_pps <= 0:
@@ -871,18 +1025,32 @@ def main() -> None:
     raw_path, feature_path = build_paths(args.output_root)
 
     print("=" * 70)
-    print(" 🚀 ESP32 CSI 1:4 Multi-Receiver TCP Server & Real-time Sensing")
+    print(" 🚀 ESP32 CSI Multi-Receiver TCP Server & Real-time Sensing")
     print("=" * 70)
     print(f" Expected Links ({len(active_links)}): " + ", ".join(active_links))
     print(f" Expected TX PPS: {args.expected_pps}")
     print(f" Raw Output:     {raw_path}")
     print(f" Feature Output: {feature_path}")
     print(f" TCP Server:     {args.host}:{args.port}")
+    if not args.no_ingest:
+        print(f" Ingest URL:     {args.ingest_url}")
     print("=" * 70)
 
     stop_event = threading.Event()
     record_queue: Queue = Queue(maxsize=16384)
     error_queue: Queue = Queue(maxsize=1)
+
+    ingest_queue: Queue | None = None
+    ingest_thread: threading.Thread | None = None
+    if not args.no_ingest:
+        ingest_queue = Queue(maxsize=1024)
+        ingest_thread = threading.Thread(
+            target=ingest_worker,
+            args=(ingest_queue, args.ingest_url, stop_event),
+            name="csi-ingest",
+            daemon=True,
+        )
+        ingest_thread.start()
 
     registry = ConnectionRegistry(
         expected_links=set(active_links),
@@ -899,6 +1067,7 @@ def main() -> None:
             args.expected_pps,
             stop_event,
             error_queue,
+            ingest_queue,
         ),
         name="csi-storage",
     )
@@ -921,7 +1090,7 @@ def main() -> None:
     server.settimeout(1.0)
 
     print(f"\n[SERVER READY] Listening on {args.host}:{args.port}...")
-    print("Waiting for 4 RX boards to connect...\n")
+    print(f"Waiting for {len(active_links)} RX board(s) to connect...\n")
 
     try:
         while not stop_event.is_set():
@@ -974,6 +1143,11 @@ def main() -> None:
         record_queue.put(STOP_RECORD)
         writer_thread.join()
         dashboard_thread.join(timeout=2.0)
+
+        if ingest_queue is not None:
+            ingest_queue.put(STOP_RECORD)
+        if ingest_thread is not None:
+            ingest_thread.join(timeout=2.0)
 
     if not error_queue.empty():
         raise error_queue.get()
