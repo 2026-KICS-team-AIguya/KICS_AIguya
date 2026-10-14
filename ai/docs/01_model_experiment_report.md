@@ -14,8 +14,8 @@
   "세션/링크 시작 직후 warmup 구간"일 가능성이 있어 `possible_session_warmup=True`로
   플래그만 하고 삭제는 안 했다. 모델 학습 시 포함 여부는 재검토 가능.
 
-### Mock (N=8~30명) — 100% synthetic
-- `data/ai/mock_data_n8_30.csv` — 실측(N=4~7)을 anchor로, 외부데이터(CountFi, 0~20명 실측)의
+### Mock (N=0~30명) — 100% synthetic
+- `data/ai/mock_data_n0_30.csv` — 실측(N=4~7)을 anchor로, 외부데이터(CountFi, 0~20명 실측)의
   "N에 따른 변화 모양"을 빌려 외삽. N=21~30(CountFi 실측 범위 밖)은 근거 없는 외삽을 피하기
   위해 N=20 값에서 보합 처리.
 - "가상 session" 24개를 만들어 baseline/scale을 랜덤화함(domain randomization) — 자세한
@@ -97,6 +97,32 @@ RandomForest/LogisticRegression과의 추가 비교는 미완료(시간 관계�
 
 ---
 
+## 5-1. 정규화 기준 통일 후 재학습 (2026-10-13)
+
+**문제**: 학습은 session 전체 통계로, 추론(`main.py update()`)은 시작 후 2분 통계로 정규화해 기준이 달랐다.
+이전 모델(v1)을 실서비스 방식(빈 방 calibration)으로 평가하면 0~30명 대부분을 "보통"으로 예측했다(정확도 0.34).
+
+**수정**:
+- 학습도 session 시작 후 첫 24개 유효 window로 정규화. 정규화 함수는 `config.fit_baseline` / `apply_baseline` 하나로 학습·추론 공용.
+- mock을 N=0부터 생성하고, 가상 session마다 0~4명 상태의 calibration window 24개 추가.
+- mock 노이즈를 "같은 session·같은 인원" 안의 window 간 표준편차로 변경(이전에는 인원·session 차이까지 섞인 큰 값이라 calibration std 규모가 실서비스와 달랐음).
+
+**결과** (GroupKFold 27 group, 테스트 fold 합산): acc 0.767, macro-F1 0.687
+
+| 인원 | 정답 | 여유 | 보통 | 혼잡 |
+|---|---|---|---|---|
+| 0~7 | 여유 | 81~100% | | |
+| 8~9 | 여유 | 29~53% | 43~69% | |
+| 12~19 | 보통 | | 59~98% | |
+| 21~30 | 혼잡 | | 46~54% | 40~48% |
+
+실측 테스트 fold(0, 4~7명)는 100% 여유. 실측 리플레이(`replay_test.py`)도 여유 99.9%.
+
+**남은 한계**: CountFi가 0~20명까지라 21명 이상은 20명 값으로 보합 처리 → 혼잡/보통 경계(21명) 구분이 약하다.
+8~9명은 정답(여유)과 보통 사이에서 흔들린다. 전부 synthetic 기준 수치이므로 실측 검증 필요.
+
+---
+
 ## 6. 다음 우선순위
 
 1. **실측 고밀도(8명 이상) 데이터 수집** — 이게 없으면 위 4-1~4-3 한계는 근본적으로
@@ -113,7 +139,7 @@ RandomForest/LogisticRegression과의 추가 비교는 미완료(시간 관계�
 python ai/main.py train
 # 내부적으로 순서대로 실행:
 #   ai/scripts/build_labels.py       (카카오톡 export + 실측 CSI -> data/ai/labeled_real_final.csv)
-#   ai/scripts/generate_mock_data.py (mock 생성 -> data/ai/mock_data_n8_30.csv, CountFi 경로 수정 필요)
+#   ai/scripts/generate_mock_data.py (mock 생성 -> data/ai/mock_data_n0_30.csv, CountFi 경로 수정 필요)
 #   ai/scripts/train_model.py        (학습 + 평가 + data/ai/model_hgb_final.joblib 저장)
 ```
 

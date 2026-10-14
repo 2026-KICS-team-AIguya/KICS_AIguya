@@ -20,17 +20,19 @@ import subprocess
 import sys
 
 import joblib
-import numpy as np
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "scripts"))
-from config import FEATURES, LEVELS  # noqa: E402
+from config import (  # noqa: E402
+    CALIBRATION_WINDOWS,
+    FEATURES,
+    LEVELS,
+    apply_baseline,
+    fit_baseline,
+)
 
 REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 MODEL_PATH = os.path.join(REPO_ROOT, "data", "ai", "model_hgb_final.joblib")
 SCRIPTS_DIR = os.path.join(os.path.dirname(__file__), "scripts")
-
-CALIBRATION_WINDOWS = 24  # 5초 window 24개 = 2분
-MIN_STD = 1e-6  # calibration 구간에서 값이 거의 안 변한 feature의 0 나눗셈 방지
 
 
 def _to_float(value):
@@ -90,11 +92,8 @@ class CongestionPredictor:
                     "status": "calibrating",
                     "progress": f"{len(buf)}/{self.calibration_windows}",
                 }
-            arr = np.array(buf)
-            self._baseline[link_id] = {
-                "mean": arr.mean(axis=0).tolist(),
-                "std": arr.std(axis=0, ddof=1).tolist(),
-            }
+            mean, std = fit_baseline(buf)
+            self._baseline[link_id] = {"mean": mean.tolist(), "std": std.tolist()}
             del self._calib_buffer[link_id]
 
         proba = self._predict_proba(values, self._baseline[link_id])
@@ -108,9 +107,7 @@ class CongestionPredictor:
         }
 
     def _predict_proba(self, values, baseline) -> dict:
-        mean = np.array(baseline["mean"])
-        std = np.maximum(np.array(baseline["std"]), MIN_STD)
-        X = ((np.array(values) - mean) / std).reshape(1, -1)
+        X = apply_baseline(values, baseline["mean"], baseline["std"]).reshape(1, -1)
         proba = dict(zip(self.model.classes_, self.model.predict_proba(X)[0]))
         return {lv: float(proba.get(lv, 0.0)) for lv in LEVELS}
 
