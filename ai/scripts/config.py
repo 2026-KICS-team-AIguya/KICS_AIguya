@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 """ai/ 파이프라인 공용 설정. train_model.py, main.py 양쪽에서 import해서 쓴다."""
 
+import numpy as np
+
 FEATURES = [
     "csi_rssi_mean",
     "csi_amp_mean",
@@ -19,6 +21,22 @@ FEATURES = [
 CAPACITY = 30
 
 LEVELS = ["여유", "보통", "혼잡"]
+
+# session 시작 후 이 개수만큼의 유효 window(5초 x 24 = 2분)로 baseline을 잡는다.
+# 학습(train_model.py)과 추론(main.py)이 같은 함수로 정규화해야 기준이 어긋나지 않는다.
+CALIBRATION_WINDOWS = 24
+MIN_STD = 1e-6  # calibration 구간에서 값이 거의 안 변한 feature의 0 나눗셈 방지
+
+
+def fit_baseline(values_2d):
+    """calibration 구간 feature 행렬(window x FEATURES) -> (mean, std)."""
+    arr = np.asarray(values_2d, dtype=float)
+    return arr.mean(axis=0), np.maximum(arr.std(axis=0, ddof=1), MIN_STD)
+
+
+def apply_baseline(values, mean, std):
+    """feature 값(1개 행 또는 행렬)을 baseline 기준 z-score로 변환."""
+    return (np.asarray(values, dtype=float) - mean) / std
 
 
 def to_level(n_people, capacity=CAPACITY):
