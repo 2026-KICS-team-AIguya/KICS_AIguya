@@ -30,6 +30,7 @@ from config import (  # noqa: E402
     LEVELS,
     SMOOTHING_WINDOWS,
     apply_baseline,
+    decide_level,
     fit_baseline,
 )
 
@@ -110,7 +111,7 @@ class CongestionPredictor:
         recent = self._recent.setdefault(link_id, deque(maxlen=self.smoothing_windows))
         recent.append(window_proba)
         proba = {lv: sum(p[lv] for p in recent) / len(recent) for lv in LEVELS}
-        level = max(proba, key=proba.get)
+        level = decide_level(proba)
         return {
             **result,
             "status": "ok",

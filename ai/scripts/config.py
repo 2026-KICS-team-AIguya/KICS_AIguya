@@ -42,6 +42,21 @@ def apply_baseline(values, mean, std):
     return (np.asarray(values, dtype=float) - mean) / std
 
 
+# 등급 결정: 확률이 가장 큰 등급 대신 "여유 0, 보통 1, 혼잡 2" 확률 가중 점수로 정한다.
+# 여유와 혼잡 사이에서 확률이 갈리는 애매한 구간이 "보통"으로 나온다 (10/15 실측에서 10~20명 입장 구간의
+# "보통"이 최댓값 방식 35~40% → 점수 방식 70~89%, 학습에서 뺀 데이터 기준).
+LEVEL_SCORE_CUTS = (0.5, 1.5)
+
+
+def decide_level(proba):
+    """{등급: 확률} → 등급. 학습 평가(train_real_model.py)와 추론(main.py)이 같이 쓴다."""
+    score = proba.get("보통", 0.0) + 2 * proba.get("혼잡", 0.0)
+    low, high = LEVEL_SCORE_CUTS
+    if score < low:
+        return "여유"
+    return "보통" if score < high else "혼잡"
+
+
 def to_level(n_people, capacity=CAPACITY):
     pct = n_people / capacity
     if pct <= 0.30:
