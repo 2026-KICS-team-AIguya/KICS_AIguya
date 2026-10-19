@@ -1541,10 +1541,10 @@ main { max-width: 1360px; margin: auto; padding: 0 42px 28px; }
 .floor-card-heading { flex-wrap: wrap; gap: 6px; }
 
 /* Kiosk: the same paper, receipt rules and tomato/leaf palette as the dining page. */
-.kiosk-mode { display: grid; gap: 2px; text-align: left; border: 1px solid var(--ink); background: var(--paper); padding: 9px 15px; border-radius: 6px; box-shadow: 3px 3px 0 var(--line); }
-.kiosk-mode:hover { background: var(--butter); }
-.kiosk-mode-caption { font-size: 11px; color: var(--muted); }
-.kiosk-mode strong { font-size: 13px; }
+.kiosk-mode { display: inline-flex; gap: 4px; padding: 4px; border: 1px solid var(--line); background: var(--paper); border-radius: 7px; flex-shrink: 0; }
+.kiosk-mode button { padding: 9px 16px; border-radius: 4px; font-size: 13px; color: var(--muted); transition: color .18s, background .18s; }
+.kiosk-mode button:hover { background: var(--butter); }
+.kiosk-mode button[aria-pressed="true"] { background: var(--ink); color: var(--paper); }
 .demo-actions { flex-wrap: wrap; }
 .kiosk-service { margin: 24px 0 38px; border-top: 2px solid var(--ink); padding-top: 28px; }
 .kiosk-heading, .kiosk-meta, .kiosk-card-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
@@ -1606,5 +1606,5 @@ main { max-width: 1360px; margin: auto; padding: 0 42px 28px; }
   .kiosk-metric-card { padding: 22px; }
   .kiosk-chart svg { height: 100px; }
   .kiosk-meta { gap: 5px; }
-  .kiosk-mode { padding: 7px 10px; }
+  .kiosk-mode button { padding: 8px 13px; }
 }
