@@ -15,7 +15,7 @@ assert.match(html, /<details\b[^>]*id="weekly-menu"[^>]*>/);
 assert.ok(!/<details\b[^>]*id="weekly-menu"[^>]*\bopen\b/.test(html));
 assert.ok(!html.includes('id="kiosk-corners"'));
 assert.ok(!html.includes("오늘의 세 코너"));
-assert.ok(html.includes("식당 이용 현황"));
+assert.ok(html.includes("식당 이용 추정"));
 
 function element(id) {
   return { id, innerHTML: "", textContent: "", clientWidth: 600, clientHeight: 403,
@@ -159,12 +159,28 @@ async function main() {
   assert.ok(node("kiosk-eating").textContent <= 120);
   assert.equal(node("kiosk-recent").textContent, liveKioskFixture.surge_momentum.recent_5m);
   h.setKiosk(kioskFixture);
-  for (const [label, query] of [["12:00", "test_hour=12&test_minute=0"], ["11:30", "test_hour=11&test_minute=30"], ["15:00", "test_hour=15&test_minute=0"], ["실시간", ""]]) {
-    node("kiosk-mode").handlers.click();
-    await h.run("refreshKiosk()");
-    assert.ok(node("kiosk-mode-label").textContent.includes(label));
-    assert.ok(h.calls.at(-1).endsWith(query || "/api/kiosk-analysis"));
-  }
+  // Measured mode follows only fresh real CSI, without requesting random data.
+  const measuredSnapshot = h.snapshot("ok");
+  measuredSnapshot.floors[0].input_kind = "sensor";
+  h.setResponse(measuredSnapshot);
+  await h.run("refreshDashboard()");
+  const callsBeforeMeasured = h.calls.length;
+  node("kiosk-mode-measured").handlers.click();
+  assert.equal(node("kiosk-results").hidden, false);
+  assert.equal(node("kiosk-mode-measured").attributes["aria-pressed"], "true");
+  assert.ok(node("kiosk-briefing").textContent.includes("혼잡"));
+  assert.ok(node("kiosk-sensor-source").textContent.includes("혼잡도 기반 가상 추정"));
+  assert.equal(h.calls.length, callsBeforeMeasured);
+  h.fail(true);
+  await h.run("refreshDashboard()");
+  assert.equal(node("kiosk-results").hidden, true);
+  assert.ok(node("kiosk-briefing").textContent.includes("기다리고"));
+  h.fail(false);
+  await h.run("refreshDashboard()");
+  assert.equal(node("kiosk-results").hidden, false);
+  node("kiosk-mode-random").handlers.click();
+  await h.run("refreshKiosk()");
+  assert.equal(node("kiosk-mode-random").attributes["aria-pressed"], "true");
   h.failKiosk(true);
   await h.run("refreshKiosk()");
   assert.equal(node("kiosk-results").hidden, true);
@@ -185,19 +201,19 @@ async function main() {
   h.setKiosk(kioskFixture);
   await h.run("refreshKiosk()");
   assert.equal(node("kiosk-results").hidden, false);
-  // An older response must not overwrite a newer mode, even if abort is ignored.
+  // A late random response must not overwrite the selected measured mode.
   const pending = [];
   h.setKioskFetch(() => new Promise(resolve => pending.push(resolve)));
   const oldRequest = h.run("refreshKiosk()");
-  h.run("kioskState.mode = 1");
-  const newRequest = h.run("refreshKiosk()");
-  const latest = structuredClone(kioskFixture); latest.summary_briefing = "new mode";
-  pending[1]({ ok: true, json: async () => latest });
-  await newRequest;
+  node("kiosk-mode-measured").handlers.click();
+  const measuredBriefing = node("kiosk-briefing").textContent;
   pending[0]({ ok: true, json: async () => kioskFixture });
   await oldRequest;
-  assert.equal(node("kiosk-briefing").textContent, "new mode");
+  assert.equal(node("kiosk-briefing").textContent, measuredBriefing);
+  assert.equal(h.run("kioskState.payload.mode"), "measured");
   h.setKioskFetch(null);
+  node("kiosk-mode-random").handlers.click();
+  await h.run("refreshKiosk()");
 
   // Changing floors while a request is pending must hide its late result.
   h.setKioskFetch(() => new Promise(resolve => pending.push(resolve)));

@@ -1,14 +1,18 @@
 # 팀원 확인용 Vercel 데모
 
-기존 배포는 웹 화면과 공식 메뉴 조회를 제공하는 팀 확인용 데모입니다. 아래의 새 CSI 연결 작업은 아직 재배포하지 않았습니다.
+2026-10-19 기준 ‘식당 이용 추정’ 문구와 키오스크 `랜덤`·`실측 기반` 모드 전환을 반영한 팀 확인용 데모입니다.
 실제 센서 수집 API, AI 모델과 SQLite 데이터는 Vercel에 업로드하지 않습니다.
 
 공유 주소: https://kics-aiguya-demo.vercel.app
 
+이번 배포: https://kics-aiguya-demo-24eacdf73-ai-guya.vercel.app
+
+공유 주소에서 변경된 HTML·JavaScript·CSS와 `/api/kiosk-analysis` 정상 응답을 확인했습니다. 공개 센서 백엔드 환경변수는 아직 없으므로 배포 화면의 실측 기반 모드는 센서 연결 대기로 표시합니다. 랜덤 모드는 바로 이용할 수 있습니다. 실측 기반을 배포 화면에서 사용하려면 아래 `CONGESTION_API_BASE`를 설정하고 재배포합니다.
+
 메뉴 함수는 서울(`icn1`)에서 실행합니다. 익명 페이지 접속, 세 공식 메뉴 소스 갱신,
 D-plex·기숙사 메뉴 이미지 응답을 배포 주소에서 확인했습니다.
 
-현재 공유기 시연은 희수 컴퓨터의 FastAPI가 웹과 API를 함께 제공합니다. 송주 컴퓨터는 `http://희수컴퓨터IP:8000/dashboard/`로 접속하면 되며 Vercel 재배포가 필요 없습니다. 실행 순서는 [CSI 연결 문서](CSI_INTEGRATION.md)에 있습니다.
+공유기 내부 시연은 센서 백엔드의 FastAPI가 웹과 API를 함께 제공합니다. 해당 컴퓨터에서 `http://127.0.0.1:8000/dashboard/`, 다른 컴퓨터에서 `http://백엔드컴퓨터IP:8000/dashboard/`로 접속하면 Vercel 재배포 없이 센서 연결을 확인할 수 있습니다. 실행 순서는 [CSI 연결 문서](CSI_INTEGRATION.md)에 있습니다.
 
 ## 구성
 

@@ -7,7 +7,7 @@
     <meta name="description" content="동국대학교 서울캠퍼스의 한 끼. 상록원, 기숙사 식당, D-plex의 주간 메뉴와 층별 혼잡도를 확인하세요.">
     <title>동국식당 — 오늘 점심은 어디서?</title>
     <link rel="preload" href="assets/fonts/GowunBatang-Bold-web.ttf" as="font" type="font/ttf" crossorigin>
-    <link rel="stylesheet" href="styles.css?v=20261014-kiosk-flow">
+    <link rel="stylesheet" href="styles.css?v=20261019-kiosk-modes">
     <script src="shared.js?v=20261014-floor1" defer></script>
     <script src="data.js?v=20261014-floor1" defer></script>
     <script src="campus.js?v=20261014-floor1" defer></script>
@@ -16,8 +16,9 @@
     <script src="runtime-config.js?v=20261014-floor1" defer></script>
     <script src="menus.js?v=20261014-floor1" defer></script>
     <script src="congestion.js?v=20261014-floor1" defer></script>
-    <script src="kiosk.js?v=20261014-kiosk-flow" defer></script>
-    <script src="app.js?v=20261014-floor1" defer></script>
+    <script src="kiosk-measured.js?v=20261019-kiosk-modes" defer></script>
+    <script src="kiosk.js?v=20261019-kiosk-modes" defer></script>
+    <script src="app.js?v=20261019-kiosk-modes" defer></script>
   </head>
   <body>
     <a class="skip-link" href="#main">본문 바로가기</a>
@@ -128,7 +129,6 @@
             </div>
           </div>
           <div class="demo-actions" id="data-actions">
-            <button id="kiosk-mode" class="kiosk-mode" type="button"><span class="kiosk-mode-caption">시연 시간 ↻</span><strong id="kiosk-mode-label">실시간 · 목데이터</strong></button>
             <span id="updated-at"></span>
             <button class="icon-button" id="refresh-button" type="button" aria-label="혼잡도와 발권 정보 새로고침"><svg class="icon" aria-hidden="true"><use href="#i-refresh"/></svg></button>
           </div>
@@ -168,19 +168,19 @@
         </div>
         <div class="floor-cards" id="floor-cards" role="group" aria-label="상록원 층 선택"></div>
         <section id="kiosk-service" class="kiosk-service" aria-labelledby="kiosk-title">
-          <div class="kiosk-heading"><div><p class="section-caption" id="kiosk-floor-caption">상록원 1층 · 키오스크 안내</p><h3 id="kiosk-title">지금, 식당은 어떤가요?</h3></div><span class="kiosk-demo-label" id="kiosk-source-badge">가상 데이터 시연</span></div>
+          <div class="kiosk-heading"><div><p class="section-caption" id="kiosk-floor-caption">상록원 1층 · 키오스크 안내</p><h3 id="kiosk-title">지금, 식당은 어떤가요?</h3></div><div id="kiosk-mode" class="kiosk-mode" role="group" aria-label="키오스크 목데이터 모드"><button id="kiosk-mode-random" type="button" aria-pressed="true">랜덤</button><button id="kiosk-mode-measured" type="button" aria-pressed="false">실측 기반</button></div></div>
           <div id="kiosk-active-content">
-            <p class="kiosk-intro">최근 발권 흐름과 식당 이용 현황을 살펴보세요.</p>
+            <p class="kiosk-intro">최근 발권 흐름과 식당 이용 추정을 살펴보세요.</p>
             <div id="kiosk-briefing-box" class="kiosk-briefing-box" role="status" aria-live="polite" aria-atomic="true"><span class="kiosk-briefing-symbol" aria-hidden="true">✳</span><div><strong>한눈에 보는 식당 소식</strong><p id="kiosk-briefing">발권 흐름을 살펴보고 있어요…</p></div><button id="kiosk-retry" type="button" hidden>다시 확인</button></div>
-            <div class="kiosk-meta"><span id="kiosk-asof"></span><span>발권 흐름을 유지하며 10초마다 갱신되는 목데이터입니다</span></div>
+            <div class="kiosk-meta"><span id="kiosk-asof"></span><span id="kiosk-mode-note">발권 흐름을 유지하며 10초마다 갱신되는 목데이터입니다</span><span class="kiosk-demo-label" id="kiosk-source-badge">랜덤 가상 데이터</span></div>
             <div id="kiosk-results" hidden>
               <div class="kiosk-metrics">
-                <article class="kiosk-metric-card"><p class="kiosk-eyebrow">01 / 머무는 사람들</p><h4>식당 이용 현황</h4><div class="kiosk-big"><strong id="kiosk-eating">—</strong><span>명 <small>식사 중 추정</small></span></div><p class="kiosk-secondary">10분 내 퇴장 예상 <strong><span id="kiosk-leaving">—</span>명</strong></p><div class="kiosk-sensor-box"><strong id="kiosk-sensor"></strong><p id="kiosk-sensor-source"></p></div></article>
+                <article class="kiosk-metric-card"><p class="kiosk-eyebrow">01 / 머무는 사람들</p><h4>식당 이용 추정</h4><div class="kiosk-big"><strong id="kiosk-eating">—</strong><span>명 <small>식사 중 추정</small></span></div><p class="kiosk-secondary">10분 내 퇴장 예상 <strong><span id="kiosk-leaving">—</span>명</strong></p><div class="kiosk-sensor-box"><strong id="kiosk-sensor"></strong><p id="kiosk-sensor-source"></p></div></article>
                 <article class="kiosk-metric-card"><p class="kiosk-eyebrow">02 / 들어오는 발걸음</p><div class="kiosk-card-heading"><h4>발권 속도</h4><span id="kiosk-surge" class="kiosk-pill"></span></div><div class="kiosk-big"><strong id="kiosk-recent">—</strong><span>건 <small>최근 5분</small></span></div><p id="kiosk-prev" class="kiosk-secondary"></p><div id="kiosk-chart" class="kiosk-chart"></div><div class="kiosk-chart-labels"><span>30분 전</span><span>5분 단위 발권량</span><span>지금</span></div></article>
                 <article class="kiosk-metric-card kiosk-golden-card"><p class="kiosk-eyebrow">03 / 방문의 타이밍</p><h4>평소와 비교하면</h4><div class="kiosk-big"><strong id="kiosk-diff">—</strong></div><p class="kiosk-secondary">최근 10분 발권량 · 가상 기준 대비</p><div class="kiosk-golden-box"><span>방문 시간 힌트</span><strong id="kiosk-golden"></strong><p id="kiosk-golden-tip"></p></div></article>
               </div>
             </div>
-            <details class="kiosk-method"><summary>이 숫자들은 어떻게 계산하나요?</summary><p>실시간 목데이터는 이전 발권 이력을 유지하며 10초마다 이어집니다. 가상 발권 후 30초 뒤 식사를 시작하고 20분 머문다는 가정으로 이용·퇴장 인원을 계산합니다. 목데이터 인원은 최대 120명이며, 실제 인원·빈 좌석을 측정한 결과가 아닙니다.</p><p>12:00·11:30·15:00 고정 시연은 별도의 발권·배식 시나리오입니다. 공식 메뉴·운영 안내 및 센서 혼잡도와는 별개입니다.</p></details>
+            <details class="kiosk-method"><summary>이 숫자들은 어떻게 계산하나요?</summary><p>랜덤 모드는 기존처럼 완만한 가상 발권 흐름을 보여줍니다. 실측 기반 모드는 1층 CSI의 여유·보통·혼잡 등급에 맞춰 가상 발권 빈도를 조절합니다. 첫 화면의 과거 이력도 현재 등급으로 구성한 가상 자료이며, 이후에는 생성한 이력을 유지합니다. 센서 수신이 끊기면 실측 기반 모드는 대기합니다.</p><p>두 모드 모두 발권 후 30초 뒤 식사를 시작하고 20분 머문다는 가정으로 인원을 계산합니다. 최대 120명이며 실제 발권량·인원·빈 좌석 측정값이 아닙니다.</p></details>
           </div>
           <div id="kiosk-pending" class="kiosk-pending" hidden><h4>키오스크 안내 준비 중</h4><p id="kiosk-pending-message"></p><p>현재 상록원 1층을 중심으로 정보를 준비하고 있어요.</p></div>
         </section>

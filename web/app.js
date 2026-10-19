@@ -146,7 +146,8 @@ function selectFloor(id) {
 
 async function refreshDashboard(manual = false) {
   advanceDemoFloors();
-  await Promise.all([refreshCongestion(), refreshKiosk()]);
+  await refreshCongestion();
+  await refreshKiosk();
   renderDashboard();
   if (manual) $("announcement").textContent = "혼잡도와 발권 정보를 새로 확인했습니다.";
 }
