@@ -49,11 +49,9 @@ class CongestionService:
         if self.predictor is not None:
             return
         try:
-            from ai.main import CongestionPredictor, FEATURES, LEVELS
-            predictor = CongestionPredictor()
-            if predictor.model.n_features_in_ != len(FEATURES) or set(predictor.model.classes_) != set(LEVELS):
-                raise ValueError("모델의 특징값·혼잡 등급이 현재 규격과 다릅니다.")
-            self.predictor = predictor
+            from ai.main import CongestionPredictor
+            # 모델 입력·등급 규격 검사는 CongestionPredictor가 직접 한다 (맞지 않으면 ValueError)
+            self.predictor = CongestionPredictor()
         except Exception as error:
             self.error = "모델 파일 또는 AI 패키지를 확인하세요."
             logging.exception("AI initialization failed: %s", error)
