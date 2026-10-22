@@ -8,7 +8,7 @@ CSI feature 5초 행 하나를 넣으면 혼잡도(여유/보통/혼잡)를 돌�
 | 항목 | 위치 | 비고 |
 |---|---|---|
 | 코드 | `ai/main.py`, `ai/scripts/config.py` | git |
-| 모델 파일 | `data/ai/model_hgb_final.joblib` | git에 없음 → 구글드라이브에서 받아 이 경로에 둘 것 |
+| 모델 파일 | `data/ai/model_hgb_final.joblib` | git에 없음 → 구글드라이브에서 받아 이 경로에 둘 것 (이름은 유지, 내용은 결정트리. 이전 모델 파일을 넣으면 로드 시 ValueError) |
 | 환경 | `ai/requirements.txt` | **scikit-learn 버전을 반드시 맞출 것** (모델 저장 버전과 다르면 로드 실패 가능) |
 
 ```bash
@@ -45,6 +45,7 @@ CSI 신호처리가 5초마다 만드는 dict 하나. README 5절 규격 그대�
 - 필수 feature 11개 목록은 `ai/scripts/config.py`의 `FEATURES`가 기준이다.
 - 다른 컬럼(`csi_packet_count` 등)은 같이 넣어도 무시된다.
 - 결측은 빈칸(`""`), `None`, `NaN` 모두 허용한다. 이 경우 예외 없이 `skipped`가 반환된다.
+- `csi_packet_count`가 들어 있고 30 미만이면(`config.MIN_PACKETS`) 특징값을 믿을 수 없어 `skipped`가 반환된다.
 
 ## 4. 출력 `result`
 
@@ -56,13 +57,14 @@ CSI 신호처리가 5초마다 만드는 dict 하나. README 5절 규격 그대�
   "level": "혼잡",
   "confidence": 0.87,
   "proba": {"여유": 0.03, "보통": 0.10, "혼잡": 0.87},
-  "window_proba": {"여유": 0.10, "보통": 0.20, "혼잡": 0.70}
+  "motion": {"rssi_std_30s_mean": 4.2, "rssi_std_3min_max": 6.1}
 }
 ```
 
-- `level` / `confidence` / `proba`는 **최근 12개 window(1분) 확률 평균** 기준이다(`config.SMOOTHING_WINDOWS`).
-  `level`은 평균 확률의 "여유 0, 보통 1, 혼잡 2" 가중 점수로 정한다(`config.decide_level`). 여유와 혼잡 사이에서 애매하면 "보통"이 된다. 화면 등급이 5초마다 깜빡이지 않게 하기 위함이며, 우르르 퇴실 같은 큰 변화는 1분 안에 반영된다.
-- `window_proba`는 이번 5초 window만의 확률(디버깅·분석용).
+- 모델 입력은 "처음 2분 대비 RSSI 흔들림"의 **최근 30초 평균**과 **그 평균의 최근 3분 최댓값**이다(`config.MotionTracker`).
+  입력에 시간 정보가 들어 있어 별도 화면 평균 없이도 등급이 5초마다 깜빡이지 않고, 사람이 몰려 들어온 뒤 앉아도 최대 3분 정도 혼잡을 유지한다.
+- `level`은 `proba`가 가장 큰 등급, `confidence`는 그 확률이다.
+- `motion`은 이번 window의 모델 입력(디버깅·분석용).
 
 | status | 의미 | 추가 필드 | 백엔드 처리 |
 |---|---|---|---|
@@ -70,7 +72,7 @@ CSI 신호처리가 5초마다 만드는 dict 하나. README 5절 규격 그대�
 | `ok` | 정상 예측 | `level`, `confidence`, `proba` | DB 저장 |
 | `skipped` | 이번 window에 결측 feature가 있음 | `reason` | 건너뛰거나 "데이터 불량"으로 저장. 서비스는 계속 동작 |
 
-`update()`는 결측이나 calibration 중에도 예외를 던지지 않는다. 예외가 나는 경우는 `check_schema()`(컬럼 누락)와 모델 파일 없음뿐이다.
+`update()`는 결측이나 calibration 중에도 예외를 던지지 않는다. 예외가 나는 경우는 `check_schema()`(컬럼 누락)와 모델 파일 없음·형식 불일치(생성 시)뿐이다.
 
 ## 5. 운영 시 주의
 
@@ -79,17 +81,19 @@ CSI 신호처리가 5초마다 만드는 dict 하나. README 5절 규격 그대�
 - **센서 안정화**: 센서를 켠 직후 신호가 안정되지 않았을 수 있다(`01_model_experiment_report.md` 4-5). 센서를 먼저 켜 두고
   충분히 안정화한 뒤 calibration을 시작할 것.
 - **재시작**: `save_calibration(path)`로 기준값을 저장해 두면 재시작 후 `load_calibration(path)`로 바로 예측할 수 있다.
+  최근 3분 움직임 기록은 저장하지 않으므로 재시작 직후 몇 분은 혼잡 유지가 짧을 수 있다.
 - **환경 변화**: 가구 이동, 장소 변경 등이 있으면 `reset_calibration(link_id)`로 다시 잡는다.
 - **센서 없이 테스트**: `python ai/scripts/replay_test.py`가 실측 데이터를 5초 스트림처럼 흘려 보내는 예시다.
 
 ## 6. 현재 한계
 
 - CSI 전용 모델이다. mmWave 결과와 대기시간 예측은 아직 포함되지 않는다.
-- **프로토타입 모델**이다 (`01_model_experiment_report.md` 5-3절). 10/15 강의실 연속 실측(입장 → 수업 → 퇴실)과
-  10/8·10/14 소수 인원 실측으로 직접 학습했다. 다인원 실측이 이 한 세션뿐이라 다른 장소·날짜로 일반화된다는 근거는 없다.
+- **프로토타입 모델**이다 (`01_model_experiment_report.md` 5-5절). RSSI 흔들림 움직임 특징으로 학습한 깊이 3 결정트리이며,
+  10/14 · 10/15 · 10/19 실측으로 학습했다. 날짜별 교차 검증 정확도 69.2%, 혼잡 F1 53.3%. 다인원 실측은 2회뿐이다.
+- **착석 인원은 감지하지 못한다.** 앉은 사람은 RSSI가 거의 흔들리지 않는다. 입장·퇴실 같은 움직임으로 혼잡을 판단한다.
 - 등급 기준은 정원 20명(`config.CAPACITY`) 기준이다: 여유 0~6명 · 보통 7~13명 · 혼잡 14명 이상 (10/16 시연 기준).
   정원을 바꾸면 모델을 다시 학습해야 한다.
-- 동적 feature(시간에 따른 흔들림, 서브캐리어 상관, RSSI 흔들림)만 사용한다.
+- feature 11개를 모두 받지만 모델 입력은 RSSI 흔들림(`csi_rssi_std`) 하나에서 만든다. 나머지는 skipped 판정과 기록용이다.
 - calibration 시작 상태가 학습 데이터와 비슷해야 한다: 10/15는 설치 인원 1~3명이 움직이는 상태로 시작했다.
   완전히 조용한 빈 방에서 시작하면 기준이 달라져 등급이 높게 나올 수 있다(미검증).
 - 학습과 추론은 같은 정규화 함수(`config.fit_baseline` / `apply_baseline`)로 "session 시작 후 첫 24개 window" 기준
