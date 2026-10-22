@@ -1,23 +1,26 @@
 # -*- coding: utf-8 -*-
 """
-실측 라벨로 혼잡도 3단계 모델 학습 (프로토타입, ai/docs/01_model_experiment_report.md 5-3절).
+실측 라벨로 혼잡도 3단계 모델 학습 — 움직임 특징 결정트리 (ai/docs/01_model_experiment_report.md 5-5절).
 
 배경:
-- synthetic(CountFi) 모델은 실측에서 항상 "여유"였다(5-2절).
-- 10/14 "빈 방 vs 34명 착석" 기준점 보간 모델은 재설치된 빈 방과 비교한 값이라, 10/15 같은 설치에서
-  연속으로 찍은 수업에서는 착석 35명을 "여유"로 판단했다. 착석 수업은 오히려 흔들림이 낮았다.
-- 10/15 실측(1명 → 35명 입장, 수업, 퇴실)은 같은 설치·연속·인원 기록이 모두 있는 첫 데이터다.
+- 10/15 하루치 다인원 데이터로 학습한 HistGradientBoosting(동적 특징값 8개)은 10/19 시연에서 혼잡을
+  한 번도 내지 못했다. 날짜별 교차 검증에서도 혼잡 재현율 0%.
+- 원인: 서브캐리어 상관·시간 변화 특징은 날마다 방향이 반대로 바뀌었고(10/15 군중은 상관 상승,
+  10/19 군중은 하락), 모델이 하루치 패턴을 외웠다. 반면 RSSI 흔들림은 두 날 모두 입장 z≈+5,
+  퇴실 z≈+7로 같은 방향이었다.
 
 방법:
 1. 세션마다 calibration(첫 24개 유효 window) → z-score. ai/main.py update()와 같은 함수.
-2. 동적 feature만 사용(DYNAMIC_FEATURES). 장소·설치·재부팅마다 방향이 바뀌는 정적 feature 제외.
-3. real_sessions.py의 구간 라벨(입장 중은 인원 기준, 착석 수업·퇴실은 "혼잡")로 직접 학습.
-   착석 수업(조용한데 사람 많음)과 소수 활동(움직임 많은데 사람 적음)을 나누려면 비선형 경계가
-   필요해 얕은 gradient boosting을 쓴다.
-4. 평가는 실측만: (a) 세션 하나를 통째로 빼고 학습 후 그 세션 예측, (b) 10/15 안에서 시간 블록을
-   빼고 예측. 화면과 같은 1분(12 window) 평균 등급도 함께 본다.
+2. RSSI 흔들림 z로 config.MotionTracker가 [30초 평균, 3분 최댓값]을 만든다. 추론과 같은 클래스.
+3. real_sessions.py의 구간 라벨로 얕은 결정트리(깊이 3)를 학습한다. 기준값(+2, +4 같은 경계)과
+   혼잡 유지 시간을 사람이 정하지 않고 모델이 데이터에서 정한다.
+4. 평가는 날짜별 교차 검증: 한 날(10/14, 10/15, 10/19)을 통째로 빼고 학습 → 그날 예측.
 
-한계: 다인원 실측은 10/15 한 세션뿐이라 다른 장소·날짜로 일반화된다는 근거는 없다.
+한계:
+- 착석 인원은 감지하지 못한다. 앉은 사람은 RSSI가 거의 흔들리지 않는다(10/19 착석 21명 z≈0).
+  3분 최댓값으로 입장 직후 착석은 버티지만, 그보다 오래 조용하면 등급이 내려간다.
+- 10/19 구간 시각은 현장 진술과 신호로 추정했다. 다인원 실측은 2회뿐이다.
+- 10/8 세션은 카톡 기반 인원 라벨이고 연속 시계열이 아니어서 학습에서 뺐다.
 """
 
 import os
@@ -25,18 +28,19 @@ import sys
 
 import joblib
 import pandas as pd
-from sklearn.compose import ColumnTransformer
-from sklearn.ensemble import HistGradientBoostingClassifier
-from sklearn.pipeline import Pipeline
+from sklearn.metrics import accuracy_score, classification_report
+from sklearn.tree import DecisionTreeClassifier, export_text
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from config import (  # noqa: E402
     CALIBRATION_WINDOWS,
     FEATURES,
     LEVELS,
-    SMOOTHING_WINDOWS,
+    MIN_PACKETS,
+    MOTION_FEATURE,
+    MOTION_INPUTS,
+    MotionTracker,
     apply_baseline,
-    decide_level,
     fit_baseline,
     to_level,
 )
@@ -44,152 +48,91 @@ from real_sessions import SESSIONS  # noqa: E402
 
 REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 REAL_DIR = os.path.join(REPO_ROOT, "data", "ai", "real")
-LABELED_1008_PATH = os.path.join(REPO_ROOT, "data", "ai", "labeled_real_final.csv")
+# 서버·테스트가 이 경로를 쓰므로 파일 이름은 유지한다 (내용은 결정트리).
 MODEL_OUT_PATH = os.path.join(REPO_ROOT, "data", "ai", "model_hgb_final.joblib")
-
-DYNAMIC_FEATURES = [
-    "csi_amp_std",
-    "csi_amp_var",
-    "csi_distortion_cv_pct",
-    "csi_sc_corr_mean",
-    "csi_temporal_var_mean",
-    "csi_temporal_diff_mean",
-    "csi_temporal_diff_std",
-    "csi_rssi_std",
-]
-DYNAMIC_IDX = [FEATURES.index(f) for f in DYNAMIC_FEATURES]
-# 10/15 안에서 빼고 검증할 시간 블록
-BLOCKS_1015 = [
-    ("12:27", "12:45"),
-    ("12:45", "13:00"),
-    ("13:00", "13:30"),
-    ("13:30", "14:04"),
-]
+MOTION_IDX = FEATURES.index(MOTION_FEATURE)
 
 
-def kst_hhmm(ts):
+def kst_time(ts):
     return (
         pd.to_datetime(ts, unit="ms", utc=True)
         .dt.tz_convert("Asia/Seoul")
-        .dt.strftime("%H:%M")
+        .dt.strftime("%H:%M:%S")
     )
 
 
+def session_motion(d):
+    """한 세션의 유효 window를 시간순으로 흘려 (z 전체, 움직임 입력) 표를 만든다. 추론과 같은 순서."""
+    mean, std = fit_baseline(d[FEATURES].values[:CALIBRATION_WINDOWS])
+    z = apply_baseline(d[FEATURES].values, mean, std)
+    tracker = MotionTracker()
+    motion = [tracker.push(v) for v in z[:, MOTION_IDX]]
+    return pd.DataFrame(motion, columns=MOTION_INPUTS, index=d.index)
+
+
 def load_windows():
-    """모든 실측 window를 (session, hhmm, n, activity, label, z...) 한 표로 만든다."""
+    """라벨이 붙은 실측 window를 (session, day, time, n, activity, label, 움직임 입력) 한 표로 만든다."""
     parts = []
     for name, spec in SESSIONS.items():
         if not spec.get("use", True):
             continue
         d = pd.read_csv(os.path.join(REAL_DIR, spec["file"])).sort_values("timestamp")
-        d = d.dropna(subset=FEATURES).copy()  # 추론도 결측 window는 skipped
-        d["hhmm"] = kst_hhmm(d["timestamp"])
-        calib = d
-        if "baseline" in spec:
-            start, end = spec["baseline"]
-            calib = d[(d["hhmm"] >= start) & (d["hhmm"] < end)]
-        mean, std = fit_baseline(calib[FEATURES].values[:CALIBRATION_WINDOWS])
-        z = pd.DataFrame(
-            apply_baseline(d[FEATURES].values, mean, std),
-            columns=FEATURES,
-            index=d.index,
-        )
+        # 추론도 결측·패킷 부족 window는 skipped → 학습에서도 뺀다
+        d = d[d["csi_packet_count"] >= MIN_PACKETS].dropna(subset=FEATURES).copy()
+        d["time"] = kst_time(d["timestamp"])
+        motion = session_motion(d)
         for start, end, n, activity, level in spec["segments"]:
-            mask = (d["hhmm"] >= start) & (d["hhmm"] < end)
-            seg = z[mask].copy()
-            seg["session"], seg["hhmm"] = name, d.loc[mask, "hhmm"]
+            mask = (d["time"] >= start) & (d["time"] < end)
+            seg = motion[mask].copy()
+            seg["session"], seg["day"], seg["time"] = name, name[:4], d.loc[mask, "time"]
             seg["n"], seg["activity"] = n, activity
             seg["label"] = level or to_level(n)
             parts.append(seg)
-
-    real = pd.read_csv(LABELED_1008_PATH)
-    real = real[~real["possible_session_warmup"].astype(bool)]
-    real = real.dropna(subset=FEATURES).sort_values(["session", "timestamp"])
-    for session, d in real.groupby("session"):
-        mean, std = fit_baseline(d[FEATURES].values[:CALIBRATION_WINDOWS])
-        seg = pd.DataFrame(
-            apply_baseline(d[FEATURES].values, mean, std), columns=FEATURES
-        )
-        seg["session"], seg["hhmm"] = f"1008_{session}", kst_hhmm(d["timestamp"]).values
-        seg["n"], seg["activity"] = d["n_people"].values, "기록 없음"
-        seg["label"] = [to_level(n) for n in d["n_people"]]
-        parts.append(seg)
     return pd.concat(parts, ignore_index=True)
 
 
 def build_model():
-    return Pipeline(
-        [
-            # 입력은 FEATURES 11개 그대로 받고 동적 feature만 골라 쓴다 → 추론 코드 변경 불필요
-            ("dynamic", ColumnTransformer([("keep", "passthrough", DYNAMIC_IDX)])),
-            (
-                "clf",
-                HistGradientBoostingClassifier(
-                    max_depth=3,
-                    max_iter=150,
-                    learning_rate=0.05,
-                    l2_regularization=1.0,
-                    class_weight="balanced",
-                    random_state=15,
-                ),
-            ),
-        ]
-    )
+    return DecisionTreeClassifier(max_depth=3, class_weight="balanced", random_state=0)
 
 
-def smoothed_levels(model, frame):
-    """화면과 같은 방식: 최근 SMOOTHING_WINDOWS개 확률 평균 → decide_level."""
-    proba = pd.DataFrame(
-        model.predict_proba(frame[FEATURES].values), columns=model.classes_
-    )
-    smooth = proba.rolling(SMOOTHING_WINDOWS, min_periods=1).mean()
-    return [decide_level(row) for row in smooth.to_dict("records")]
+def evaluate_leave_one_day_out(data):
+    """한 날을 통째로 빼고 학습 → 그날 예측. 학습한 날과 다른 날에도 통하는지 본다."""
+    pred = pd.Series(index=data.index, dtype=object)
+    for day in data["day"].unique():
+        test = data["day"] == day
+        model = build_model().fit(
+            data.loc[~test, MOTION_INPUTS].values, data.loc[~test, "label"].values
+        )
+        pred[test] = model.predict(data.loc[test, MOTION_INPUTS].values)
+    return pred
 
 
-def summarize(frame, pred, smooth):
+def summarize(data, pred):
+    frame = data.assign(pred=pred)
     rows = []
-    keys = ["session", "activity", "label"]
-    frame = frame.assign(pred=pred, smooth=smooth)
-    for (session, activity, label), g in frame.groupby(keys, sort=False):
+    for (session, activity, label), g in frame.groupby(
+        ["session", "activity", "label"], sort=False
+    ):
         row = {
             "세션": session,
-            "구간": f"{g['hhmm'].min()}~{g['hhmm'].max()}",
+            "구간": f"{g['time'].min()}~{g['time'].max()}",
             "인원": f"{g['n'].min()}~{g['n'].max()}",
             "행동": activity,
             "정답": label,
             "window": len(g),
-            "정답률(5초)": int(round((g["pred"] == label).mean() * 100)),
-            "정답률(1분평균)": int(round((g["smooth"] == label).mean() * 100)),
         }
-        row.update({lv: int(round((g["smooth"] == lv).mean() * 100)) for lv in LEVELS})
+        row.update({lv: int(round((g["pred"] == lv).mean() * 100)) for lv in LEVELS})
         rows.append(row)
     return pd.DataFrame(rows)
 
 
-def evaluate_leave_one_session_out(data):
-    out = []
-    for session in data["session"].unique():
-        train, test = data[data["session"] != session], data[data["session"] == session]
-        if train["label"].nunique() < len(LEVELS):
-            continue
-        model = build_model().fit(train[FEATURES].values, train["label"].values)
-        pred = model.predict(test[FEATURES].values)
-        out.append(summarize(test, pred, smoothed_levels(model, test)))
-    return pd.concat(out, ignore_index=True)
-
-
-def evaluate_1015_blocks(data):
-    out = []
-    in_1015 = data["session"] == "1015_class"
-    for start, end in BLOCKS_1015:
-        held = in_1015 & (data["hhmm"] >= start) & (data["hhmm"] < end)
-        model = build_model().fit(
-            data.loc[~held, FEATURES].values, data.loc[~held, "label"].values
-        )
-        test = data[held]
-        pred = model.predict(test[FEATURES].values)
-        out.append(summarize(test, pred, smoothed_levels(model, test)))
-    return pd.concat(out, ignore_index=True)
+def report(data, pred):
+    y = data["label"]
+    print(f"정확도 {accuracy_score(y, pred) * 100:.1f}%  (window {len(y)}개)")
+    for day in data["day"].unique():
+        m = data["day"] == day
+        print(f"  {day} 정확도 {accuracy_score(y[m], pred[m]) * 100:.1f}%")
+    print(classification_report(y, pred, labels=LEVELS, digits=3, zero_division=0))
 
 
 def main():
@@ -198,25 +141,16 @@ def main():
     print("학습 데이터 (window 수):")
     print(data.groupby(["session", "label"]).size().unstack(fill_value=0).to_string())
 
-    print("\n=== (a) 세션 하나를 빼고 학습 → 그 세션 예측 ===")
-    print(
-        "※ 10/15를 빼면 다인원 학습 데이터가 없어 보통·혼잡을 배울 수 없으므로 생략된다."
-    )
-    print(evaluate_leave_one_session_out(data).to_string(index=False))
+    print("\n=== 날짜별 교차 검증 (한 날 제외 학습 → 그날 예측) ===")
+    pred = evaluate_leave_one_day_out(data)
+    report(data, pred)
+    print(summarize(data, pred).to_string(index=False))
 
-    print("\n=== (b) 10/15 안에서 시간 블록을 빼고 학습 → 그 블록 예측 ===")
-    print("※ 같은 세션의 인접 구간으로 학습하므로 (a)보다 낙관적인 수치다.")
-    print(evaluate_1015_blocks(data).to_string(index=False))
-
-    model = build_model().fit(data[FEATURES].values, data["label"].values)
-    print("\n=== 최종 모델 (전체 학습) — 학습 데이터 재현, 참고용 ===")
-    print(
-        summarize(
-            data, model.predict(data[FEATURES].values), smoothed_levels(model, data)
-        ).to_string(index=False)
-    )
+    model = build_model().fit(data[MOTION_INPUTS].values, data["label"].values)
+    print("\n=== 최종 모델 (전체 학습) 판단 규칙 ===")
+    print(export_text(model, feature_names=MOTION_INPUTS))
     joblib.dump(model, MODEL_OUT_PATH)
-    print(f"\n최종 모델 저장: {MODEL_OUT_PATH}")
+    print(f"최종 모델 저장: {MODEL_OUT_PATH}")
 
 
 if __name__ == "__main__":

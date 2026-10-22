@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 """ai/ 파이프라인 공용 설정. train_model.py, main.py 양쪽에서 import해서 쓴다."""
 
+from collections import deque
+
 import numpy as np
 
 FEATURES = [
@@ -24,12 +26,20 @@ CAPACITY = 20
 LEVELS = ["여유", "보통", "혼잡"]
 
 # session 시작 후 이 개수만큼의 유효 window(5초 x 24 = 2분)로 baseline을 잡는다.
-# 학습(train_model.py)과 추론(main.py)이 같은 함수로 정규화해야 기준이 어긋나지 않는다.
+# 학습(train_real_model.py)과 추론(main.py)이 같은 함수로 정규화해야 기준이 어긋나지 않는다.
 CALIBRATION_WINDOWS = 24
 MIN_STD = 1e-6  # calibration 구간에서 값이 거의 안 변한 feature의 0 나눗셈 방지
-# 화면 등급이 5초마다 깜빡이지 않도록 최근 window 확률을 평균한다 (12개 = 1분).
-# 10/14 실측 기준 1분 평균이 퇴실(혼잡)은 바로 잡으면서 착석·빈 방 등급은 안정적이었다.
-SMOOTHING_WINDOWS = 12
+# 5초 window의 패킷이 이보다 적으면 특징값을 믿을 수 없어 판정을 건너뛴다 (36pps 기준 기대 180개).
+MIN_PACKETS = 30
+
+# 움직임 특징 (01_model_experiment_report.md 5-5절).
+# 10/15·10/19 두 날 모두 같은 방향으로 움직인 신호는 RSSI 흔들림뿐이었다(입장 z≈+5, 퇴실 z≈+7).
+# 5초 순간값 대신 "최근 30초 평균"과 "그 평균의 최근 3분 최댓값"을 모델 입력으로 쓴다.
+# 3분 최댓값은 사람들이 몰려 들어와 앉은 뒤 신호가 잠잠해져도 한동안 혼잡을 유지하게 한다.
+MOTION_FEATURE = "csi_rssi_std"
+MOTION_SHORT_WINDOWS = 6  # 5초 x 6 = 30초
+MOTION_HOLD_WINDOWS = 36  # 5초 x 36 = 3분
+MOTION_INPUTS = ["rssi_std_30s_mean", "rssi_std_3min_max"]
 
 
 def fit_baseline(values_2d):
@@ -43,19 +53,21 @@ def apply_baseline(values, mean, std):
     return (np.asarray(values, dtype=float) - mean) / std
 
 
-# 등급 결정: 확률이 가장 큰 등급 대신 "여유 0, 보통 1, 혼잡 2" 확률 가중 점수로 정한다.
-# 여유와 혼잡 사이에서 확률이 갈리는 애매한 구간이 "보통"으로 나온다 (10/15 실측에서 10~20명 입장 구간의
-# "보통"이 최댓값 방식 35~40% → 점수 방식 70~89%, 학습에서 뺀 데이터 기준).
-LEVEL_SCORE_CUTS = (0.5, 1.5)
+class MotionTracker:
+    """baseline z-score된 RSSI 흔들림을 5초마다 받아 모델 입력 [30초 평균, 3분 최댓값]을 만든다.
 
+    학습(train_real_model.py)과 추론(main.py)이 같은 클래스를 써서 입력 계산이 어긋나지 않게 한다.
+    """
 
-def decide_level(proba):
-    """{등급: 확률} → 등급. 학습 평가(train_real_model.py)와 추론(main.py)이 같이 쓴다."""
-    score = proba.get("보통", 0.0) + 2 * proba.get("혼잡", 0.0)
-    low, high = LEVEL_SCORE_CUTS
-    if score < low:
-        return "여유"
-    return "보통" if score < high else "혼잡"
+    def __init__(self):
+        self._z = deque(maxlen=MOTION_SHORT_WINDOWS)
+        self._short = deque(maxlen=MOTION_HOLD_WINDOWS)
+
+    def push(self, z):
+        self._z.append(float(z))
+        short = sum(self._z) / len(self._z)
+        self._short.append(short)
+        return [short, max(self._short)]
 
 
 def to_level(n_people, capacity=CAPACITY):
